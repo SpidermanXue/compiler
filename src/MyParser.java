@@ -346,6 +346,19 @@ class MyParser extends parser
 		return sto;
 	}
 
+	STO DoDesignator4_ID(String strID)
+	{
+		STO sto;
+
+		if ((sto = m_symtab.accessGlobal(strID)) == null)
+		{
+			m_nNumErrors++;
+			m_errors.print(Formatter.toString(ErrorMsg.undeclared_id, strID));
+			sto = new ErrorSTO(strID);
+		}
+
+		return sto;
+	}
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
