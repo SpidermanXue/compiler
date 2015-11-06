@@ -24,8 +24,21 @@ public class AssemblyCodeGenerator {
     private static final String SEPARATOR = "\t";
     // 6
     private static final String SET_OP = "set";
+
+    private static final String Section = ".section";
+    private static final String Align = ".align";
+    private static final String Global = ".global";
+    private static final String BSS = "\".bss\"";
+    private static final String SKIP = ".skip";
+    private static final String TEXT = "\".text\"";
+    private static final String DATA = "\".data\"";
+    private static final String HEAP = "\".heap\"";
+    private static final String STACK = "\".stack\"";
+
     private static final String ONE_PARAM = "%s" + SEPARATOR + "%s\n";
     private static final String TWO_PARAM = "%s" + SEPARATOR + "%s, %s\n";
+    private static final String TWO_STRING = "%s" + SEPARATOR + "%s \n";
+    private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
 
     public AssemblyCodeGenerator (String fileToWrite) {
         try {
@@ -40,6 +53,7 @@ public class AssemblyCodeGenerator {
     }
 
     // main for testing purposes
+
     public static void main(String args[]) {
         AssemblyCodeGenerator myAsWriter = new AssemblyCodeGenerator("rc.s");
 
@@ -56,12 +70,19 @@ public class AssemblyCodeGenerator {
     //9
     public void writeAssembly(String template, String ... params) {
         StringBuilder asStmt = new StringBuilder();
+
         // 10
         for (int i=0; i < indent_level; i++) {
             asStmt.append(SEPARATOR);
         }
+
         // 11
         asStmt.append(String.format(template, (Object[])params));
+
+        // 11
+        asStmt.append(String.format(template, (Object[])params));
+
+
         try {
             fileWriter.write(asStmt.toString());
         } catch (IOException e) {
@@ -80,18 +101,15 @@ public class AssemblyCodeGenerator {
         indent_level++;
     }
 
-    // Phase 1.1
-
-    public void doBasicDecl(STO var, boolean init)
+    public void doBasicDecl(STO var, STO init)
     {
 
     }
 
-    public void insertSectionText ()
+    public void GoBackSectionText()
     {
-        //writeAssembly();
+        //inserting just in case section text
     }
-
 
     public void dispose() {
         try {

@@ -22,7 +22,6 @@ class MyParser extends parser
     private SymbolTable m_symtab;
     private AssemblyCodeGenerator MyWriter;
 
-
     //----------------------------------------------------------------
     //
     //----------------------------------------------------------------
@@ -154,10 +153,7 @@ class MyParser extends parser
     //----------------------------------------------------------------
     void DoProgramStart()
     {
-        // Opens the global scope.
         m_symtab.openScope();
-
-        //Initialized Assembly Geneartor
         MyWriter = new AssemblyCodeGenerator("rc.s");
     }
 
@@ -181,12 +177,9 @@ class MyParser extends parser
         STO sto;
         Vector<Integer> domain = new Vector<Integer>();
         boolean errFlag = false;
-        System.out.println(optStatic);
-
         if (optStatic == null) {
             optStatic = false;
         }
-
 
         // TypeArray
         if (array != null) {
@@ -218,7 +211,6 @@ class MyParser extends parser
                     break;
                 }
             }
-
             if (errFlag) {
                 sto = new ErrorSTO(id);
             } else {
@@ -251,7 +243,6 @@ class MyParser extends parser
         //check initialization
         if (s != null) {
             if(!(s instanceof ErrorSTO)) {
-
                 if (!s.getType().isAssignableTo(t)) {
                     m_nNumErrors++;
                     m_errors.print(Formatter.toString(

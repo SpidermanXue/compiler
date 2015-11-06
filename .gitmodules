@@ -1,0 +1,6 @@
+[submodule "testcases/cse131-fall2015-tests"]
+	path = testcases/cse131-fall2015-tests
+	url = https://github.com/mnyayapati/cse131-fall2015-tests.git
+[submodule "cse131-fall2015-tests"]
+	path = cse131-fall2015-tests
+	url = https://github.com/mnyayapati/cse131-fall2015-tests.git
