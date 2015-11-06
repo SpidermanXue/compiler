@@ -76,26 +76,6 @@ public class AssemblyCodeGenerator {
  //       myAsWriter.decreaseIndent();
         myAsWriter.dispose();
     }
-
-    // 8
-    public void decreaseIndent() {
-        indent_level--;
-    }
-
-    public void dispose() {
-        try {
-            fileWriter.close();
-        } catch (IOException e) {
-            System.err.println(ERROR_IO_CLOSE);
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    public void increaseIndent() {
-        indent_level++;
-    }
-
     public void writeAssembly(String template, String ... params) {
         StringBuilder asStmt = new StringBuilder();
 
@@ -115,4 +95,31 @@ public class AssemblyCodeGenerator {
         }
     }
 
+    // 8
+    public void decreaseIndent() {
+        indent_level--;
+    }
+    public void increaseIndent() {
+        indent_level++;
+    }
+
+    public void doBasicDecl(STO var, boolean init)
+    {
+
+    }
+
+    public void insertSectionText()
+    {
+        //inserting just in case section text
+    }
+
+    public void dispose() {
+        try {
+            fileWriter.close();
+        } catch (IOException e) {
+            System.err.println(ERROR_IO_CLOSE);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
 }
