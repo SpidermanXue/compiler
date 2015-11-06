@@ -8,7 +8,10 @@ import java.util.Vector;
 
 class Scope
 {
-	private Vector<STO> m_lstLocals;
+	public Vector<STO> m_lstLocals;
+	private boolean whileFlag = false;
+	private boolean forEachFlag = false;
+	private boolean ifFlag = false;
 
 	//----------------------------------------------------------------
 	//
@@ -44,6 +47,41 @@ class Scope
 		return null;
 	}
 
+	public Vector<STO> findfunc(String strName)
+	{
+		STO sto = null;
+		Vector<STO> findFun = new Vector<>();
+
+		for (int i = 0; i < m_lstLocals.size(); i++)
+		{
+			sto = m_lstLocals.elementAt(i);
+
+			if (sto.getName().equals(strName)){
+				findFun.addElement(sto);
+			}
+
+		}
+		return findFun;
+	}
+
+	public Vector<STO> findfuncStr(String strName)
+	{
+		STO sto = null;
+		Vector<STO> findFun = new Vector<>();
+
+		for (int i = 0; i < m_lstLocals.size(); i++)
+		{
+			sto = m_lstLocals.elementAt(i);
+
+			if (sto.getName().equals(strName) && (sto instanceof FuncSTO)){
+				findFun.addElement(sto);
+			}
+
+		}
+		return findFun;
+		//return null;
+	}
+
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -51,4 +89,34 @@ class Scope
 	{
 		m_lstLocals.addElement(sto);
 	}
+
+	public Vector<STO> getSTO()
+	{
+		return this.m_lstLocals;
+	}
+
+	public void setWhile()
+	{
+		this.whileFlag = true;
+	}
+
+	public void setForEach()
+	{
+		this.forEachFlag = true;
+	}
+
+	public void setIf(){this.ifFlag = true;}
+
+	public boolean getWhile()
+	{
+		return this.whileFlag;
+	}
+
+	public boolean getForEach()
+	{
+		return this.forEachFlag;
+	}
+
+	public boolean getIf(){return this.ifFlag;}
+
 }

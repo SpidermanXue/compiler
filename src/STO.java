@@ -10,6 +10,7 @@ abstract class STO
 	private Type m_type;
 	private boolean m_isAddressable;
 	private boolean m_isModifiable;
+	protected int scopeLevel;
 
 	//----------------------------------------------------------------
 	//
@@ -41,7 +42,7 @@ abstract class STO
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
-	private void setName(String str)
+	public void setName(String str)
 	{
 		m_strName = str;
 	}
@@ -119,4 +120,14 @@ abstract class STO
 	public boolean isFunc() { return false; }
 	public boolean isStructdef() { return false; }
 	public boolean isError() { return false; }
+
+	public void setScopeLevel (int level)
+	{
+		this.scopeLevel = level;
+	}
+
+	public int getScopeLevel()
+	{
+		return this.scopeLevel;
+	}
 }

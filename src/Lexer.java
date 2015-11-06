@@ -294,7 +294,7 @@ class Lexer
               token = new Token (sym.T_INT_LITERAL,
                   String.valueOf(Integer.parseInt(buffer.substring(2), 16)));
 			  //Evanxue
-				// System.out.print("hex to int:" + String.valueOf(Integer.parseInt(buffer.substring(2), 16)));
+				 //System.out.print(buffer + "hex to int:" + String.valueOf(Integer.parseInt(buffer.substring(2), 16)));
             }
             break;
 
@@ -308,9 +308,12 @@ class Lexer
             else
             {
               ungetChar (c);
+		//		System.out.println("buffer is" + buffer);
               token = new Token (sym.T_INT_LITERAL,
-                  String.valueOf(Integer.parseInt(buffer.substring(2), 8)));
-            }
+                  String.valueOf(Integer.parseInt(buffer.toString(), 8)));
+	//			System.out.print(buffer + "octal to int:" +    String.valueOf(Integer.parseInt(buffer.toString(), 8)));
+
+			}
             break;
 
 

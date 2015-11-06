@@ -12,6 +12,7 @@ class SymbolTable
 	private int m_nLevel;
 	private Scope m_scopeGlobal;
 	private FuncSTO m_func = null;
+	private StructdefSTO m_struct = null;
     
 	//----------------------------------------------------------------
 	//
@@ -32,6 +33,11 @@ class SymbolTable
 		scope.InsertLocal(sto);
 	}
 
+    public void insertGlobal(STO sto)
+    {
+        m_scopeGlobal.InsertLocal(sto);
+    }
+
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -40,6 +46,9 @@ class SymbolTable
 		return m_scopeGlobal.access(strName);
 	}
 
+	public Vector<STO> accessFunc(String strName){ //return function group
+		return m_scopeGlobal.findfunc(strName);
+	}
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -53,7 +62,7 @@ class SymbolTable
 	//
 	//----------------------------------------------------------------
 	public STO access(String strName)
-	{
+	{ //return function sto
 		Stack stk = new Stack();
 		Scope scope;
 		STO stoReturn = null;
@@ -91,6 +100,11 @@ class SymbolTable
 		return null;
 	}
 
+	public Scope accessLevel(int level)
+	{
+		return this.m_stkScopes.elementAt(level);
+	}
+
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -102,6 +116,16 @@ class SymbolTable
 		if (m_scopeGlobal == null)
 			m_scopeGlobal = scope;
 
+        if(!m_stkScopes.empty()){
+            if(this.getWhile()){
+                scope.setWhile();
+            }
+
+            if(this.getForEach()){
+                scope.setForEach();
+            }
+        }
+
 		m_stkScopes.push(scope);
 		m_nLevel++;
 	}
@@ -111,6 +135,7 @@ class SymbolTable
 	//----------------------------------------------------------------
 	public void closeScope()
 	{
+	//	System.out.println("level # " + m_nLevel);
 		m_stkScopes.pop();
 		m_nLevel--;
 	}
@@ -128,5 +153,34 @@ class SymbolTable
 	//	This is the function currently being parsed.
 	//----------------------------------------------------------------
 	public FuncSTO getFunc() { return m_func; }
+
 	public void setFunc(FuncSTO sto) { m_func = sto; }
+
+	public StructdefSTO getStruct() { return m_struct; }
+
+	public void setStruct(StructdefSTO sto) { m_struct = sto; }
+
+	public void setForEach()
+	{
+		m_stkScopes.peek().setForEach();
+	}
+
+	public void setWhile()
+	{
+		m_stkScopes.peek().setForEach();
+	}
+
+	public void setIf(){m_stkScopes.peek().setIf();}
+
+	public boolean getForEach()
+	{
+		return m_stkScopes.peek().getForEach();
+	}
+
+	public boolean getWhile()
+	{
+		return m_stkScopes.peek().getWhile();
+	}
+
+	public boolean getIf(){return m_stkScopes.peek().getIf();}
 }

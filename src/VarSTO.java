@@ -6,6 +6,7 @@
 
 class VarSTO extends STO
 {
+	private boolean amper = false;
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -30,4 +31,7 @@ class VarSTO extends STO
 	{
 		return true;
 	}
+
+	public void setamper(){ this.amper = true; }
+	public boolean getamper(){return amper;}
 }

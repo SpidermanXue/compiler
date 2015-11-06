@@ -15,6 +15,7 @@ abstract class Type
 	// Name of the Type (e.g., int, bool, some structdef, etc.)
 	private String m_typeName;
 	private int m_size;
+	protected String typeNmae;
 
 	//----------------------------------------------------------------
 	//
@@ -36,7 +37,7 @@ abstract class Type
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
-	private void setName(String str)
+	protected void setName(String str)
 	{
 		m_typeName = str;
 	}
@@ -52,11 +53,16 @@ abstract class Type
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
-	private void setSize(int size)
+	protected void setSize(int size)
 	{
 		m_size = size;
 	}
 
+    // use by TypeArray mainly
+	protected void addSize(int size)
+	{
+		m_size += size;
+	}
 	//----------------------------------------------------------------
 	//	It will be helpful to ask a Type what specific Type it is.
 	//	The Java operator instanceof will do this, but you may
@@ -66,4 +72,15 @@ abstract class Type
 	//----------------------------------------------------------------
 	public boolean  isError()   { return false; }
 	public boolean  isInt()	    { return false; }
+    //Sabryna
+    public boolean isNumeric()  { return false; }
+    public boolean isFloat() { return false; }
+    public boolean isBool() { return false; }
+
+
+
+    /* Abstract Method*/
+    public abstract boolean isAssignableTo(Type t);
+    public abstract boolean isEquivalentTo(Type t);
+
 }

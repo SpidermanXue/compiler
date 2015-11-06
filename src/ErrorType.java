@@ -24,4 +24,15 @@ class ErrorType extends Type
 	//	for every check.
 	//----------------------------------------------------------------
     public boolean isError()            { return true; }
+
+
+	@Override
+	public boolean isAssignableTo(Type t) {
+		return false;
+	}
+
+	@Override
+	public boolean isEquivalentTo(Type t) {
+		return false;
+	}
 }

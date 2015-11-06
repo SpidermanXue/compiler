@@ -73,7 +73,7 @@ class Formatter
         return toString(template, strings.iterator());
     }
 
-    public static String toString(String template, int s1) 
+    public static String toString(String template, int s1)
     {
         return toString(template, Integer.toString(s1));
     }

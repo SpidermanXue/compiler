@@ -16,7 +16,7 @@ class ConstSTO extends STO
     //	type. Booleans/Ptrs can easily be handled by ints.
     //	Feel free to change this if you don't like it!
     //----------------------------------------------------------------
-    private BigDecimal		m_value;
+    public BigDecimal		m_value;
 
 	//----------------------------------------------------------------
 	//
@@ -25,6 +25,7 @@ class ConstSTO extends STO
 	{
 		super(strName);
 		m_value = null; // fix this
+		//this.setIsAddressable(true);
 		// You may want to change the isModifiable and isAddressable
 		// fields as necessary
 	}
@@ -33,6 +34,7 @@ class ConstSTO extends STO
 	{
 		super(strName, typ);
 		m_value = null; // fix this
+		//this.setIsAddressable(true);
 		// You may want to change the isModifiable and isAddressable
 		// fields as necessary
 	}
@@ -40,7 +42,9 @@ class ConstSTO extends STO
 	public ConstSTO(String strName, Type typ, int val)
 	{
 		super(strName, typ);
+		//System.out.println("input value:::" + val);
 		m_value = new BigDecimal(val);
+		//this.setIsAddressable(true);
 		// You may want to change the isModifiable and isAddressable
 		// fields as necessary
 	}
@@ -49,8 +53,21 @@ class ConstSTO extends STO
 	{
 		super(strName, typ);
 		m_value = new BigDecimal(val);
+		//this.setIsAddressable(true);
 		// You may want to change the isModifiable and isAddressable
 		// fields as necessary
+	}
+
+    public ConstSTO(String strName, Type typ, float val){
+        super(strName, typ);
+        m_value = new BigDecimal(val);
+        //this.setIsAddressable(true);
+    }
+
+	public ConstSTO(String strName, Type typ, BigDecimal val){
+		super(strName, typ);
+		m_value = val;
+		//this.setIsAddressable(true);
 	}
 
 	//----------------------------------------------------------------
@@ -77,6 +94,10 @@ class ConstSTO extends STO
 		return m_value.intValue();
 	}
 
+	public void unaryValue(){
+
+		this.m_value = this.m_value.negate();
+	}
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------

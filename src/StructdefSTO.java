@@ -8,8 +8,15 @@
 // For structdefs
 //---------------------------------------------------------------------
 
+import java.util.Vector;
+
 class StructdefSTO extends STO
 {
+	private Vector<STO> localVar = new Vector<STO>();
+	private boolean constructor = false;
+	private boolean destructor = false;
+	private boolean finderror = false;
+
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -30,4 +37,22 @@ class StructdefSTO extends STO
 	{
 		return true;
 	}
+
+	public void addVar(STO var){
+		localVar.addElement(var);
+	}
+	public Vector<STO> getVar(){return this.localVar;}
+
+	public void setConstruct(boolean t){this.constructor = t;}
+	public boolean getConstruct(){return this.constructor;}
+
+
+	public void setdestruct(boolean t){this.destructor = t;}
+	public boolean getdestruct(){return this.destructor;}
+
+	public void setError(){finderror = true;}
+	public boolean getError(){return finderror;}
+
+
+
 }

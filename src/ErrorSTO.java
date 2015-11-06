@@ -6,14 +6,28 @@
 
 class ErrorSTO extends STO
 {
+	String errMsg = "";
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
 	public ErrorSTO(String strName)
 	{
 		super(strName, new ErrorType());
-	}
+    }
 
+    public ErrorSTO (String strName, String errMsg){
+        super(strName, new ErrorType());
+        this.setErrMsg(errMsg);
+    }
+
+    public void setErrMsg(String msg)
+    {
+        this.errMsg = msg;
+    }
+
+    public String getErrMsg(){
+        return this.errMsg;
+    }
 	//----------------------------------------------------------------
 	//	There are times where it is an error if the STO is not a 
 	//	constant or adddressable or something else. However, if
