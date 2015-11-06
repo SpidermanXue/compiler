@@ -1,6 +1,7 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  * Created by Sabryna on 11/3/15.
@@ -29,6 +30,7 @@ public class AssemblyCodeGenerator {
     private static final String Global = ".global";
     private static final String BSS = "\".bss\"";
     private static final String SKIP = ".skip";
+    private static final String WORD = ".word";
     private static final String TEXT = "\".text\"";
     private static final String DATA = "\".data\"";
     private static final String HEAP = "\".heap\"";
@@ -49,6 +51,43 @@ public class AssemblyCodeGenerator {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    public void DoBasicDecl (STO To, STO From){ // typename , id , location of var, value
+        increaseIndent();
+        if(From == null){ // not initialized
+            if(To.getStatic() || To.getGlobal()) {
+                writeAssembly(TWO_STRING, Section, BSS);
+            }
+            else{
+                writeAssembly(TWO_STRING, Section, STACK);
+            }
+        }else{ // initialized
+            if(To.getStatic() || To.getGlobal()) {
+                writeAssembly(TWO_STRING, Section, DATA);
+            }
+            else{
+                writeAssembly(TWO_STRING, Section, STACK);
+            }
+        }
+        writeAssembly(STRING_NUM, Align, String.valueOf(4));
+        if(To.getGlobal()){
+            writeAssembly(TWO_STRING, Global, To.getName());
+        }
+        decreaseIndent();
+        writeAssembly(To.getName() + ":\n");
+        increaseIndent();
+        if(From == null) {
+            writeAssembly(STRING_NUM, SKIP, String.valueOf(4));
+        }else{
+            writeAssembly(STRING_NUM, WORD, From.getValue());
+        }
+        GoBackToText();
+    }
+
+    public void GoBackToText(){
+        writeAssembly("\n\t"+ TWO_STRING, Section, TEXT);
+        writeAssembly(STRING_NUM, Align, String.valueOf(4));
     }
 
     public static void main(String args[]) {
