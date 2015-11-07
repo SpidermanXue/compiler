@@ -15,3 +15,5 @@ yuno
 YUNOSOC*
 Makefile
 RC
+src/parser.java
+src/sym.java
