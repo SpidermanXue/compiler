@@ -143,6 +143,10 @@ abstract class STO
         return this.isStatic;
     }
 
+    public void setGlobal(boolean isGlobal)
+    {
+        this.isGlobal = isGlobal;
+    }
 
     public boolean getGlobal()
     {

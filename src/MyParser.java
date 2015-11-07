@@ -221,7 +221,12 @@ class MyParser extends parser
                 m_errors.print(Formatter.toString(ErrorMsg.redeclared_id, id));
                 return;
             }
+
+            sto.setStatic(optStatic);
+            sto.setGlobal(this.m_symtab.getLevel()==1);
+
             m_symtab.insert(sto);
+            MyWriter.DoDecl(sto,s);
             return;
         } //end of TypeArray part
 
@@ -249,9 +254,12 @@ class MyParser extends parser
             }
 
         }
-        // set static
+
         sto.setStatic(optStatic);
+        sto.setGlobal(this.m_symtab.getLevel()==1);
         m_symtab.insert(sto);
+        MyWriter.DoDecl(sto, s);
+
     }
 
     //DoVarDecl helper function for pointer, called in rc.cup
@@ -277,7 +285,7 @@ class MyParser extends parser
         }
     }
     // Check 8b : Const/variable initialization using auto keyword
-    void doAutoDecl(String id, STO exp){
+    void doAutoDecl(Boolean optStatic, String id, STO exp){
         Type t = exp.getType();
 
         if (m_symtab.accessLocal(id) != null) {
@@ -293,6 +301,8 @@ class MyParser extends parser
         }else{
             sto.setIsModifiable(false);
         }
+        sto.setStatic(optStatic);
+        sto.setGlobal(m_symtab.getLevel()==1);
         m_symtab.insert(sto);
     }
 
@@ -316,7 +326,7 @@ class MyParser extends parser
     //
     //----------------------------------------------------------------
     // Check 8b
-    void DoConstDecl (Type t, String id, STO s)
+    void DoConstDecl (Boolean optStatic, Type t, String id, STO s)
     {
         // Check ErrorSTO
         if (s instanceof ErrorSTO) {
@@ -394,6 +404,9 @@ class MyParser extends parser
             sto = new ConstSTO (id, t, i);
             sto.setIsAddressable(true);
         }
+
+        sto.setStatic(optStatic);
+        sto.setGlobal(m_symtab.getLevel()==1);
         m_symtab.insert(sto);
     }
 
