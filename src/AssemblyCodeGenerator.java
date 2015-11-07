@@ -9,18 +9,18 @@ import java.util.Vector;
 public class AssemblyCodeGenerator {
     private int indent_level = 0;
     private static final String ERROR_IO_CLOSE =
-            "Unable to close fileWriter";
+    "Unable to close fileWriter";
     private static final String ERROR_IO_CONSTRUCT =
-            "Unable to construct FileWriter for file %s";
+    "Unable to construct FileWriter for file %s";
     private static final String ERROR_IO_WRITE =
-            "Unable to write to fileWriter";
+    "Unable to write to fileWriter";
     // 3
     private FileWriter fileWriter;
     // 4
     private static final String FILE_HEADER =
-            "/*\n" +
-                    " * Generated %s\n" +
-                    " */\n\n";
+    "/*\n" +
+    " * Generated %s\n" +
+    " */\n\n";
     // 5
     private static final String SEPARATOR = "\t";
     // 6
@@ -40,21 +40,21 @@ public class AssemblyCodeGenerator {
     private static final String DATA = "\".data\"";
     private static final String HEAP = "\".heap\"";
     private static final String STACK = "\".stack\"";
-
+    
     private static final String INPUT0 = "%i0";
     private static final String INPUT1 = "%i1";
     private static final String INPUT2 = "%i2";
     private static final String INPUT3 = "%i3";
     private static final String INPUT4 = "%i4";
     private static final String INPUT5 = "%i5";
-
+    
     private static final String OUTPUT0 = "%o0";
     private static final String OUTPUT1 = "%o1";
     private static final String OUTPUT2 = "%o2";
     private static final String OUTPUT3 = "%o3";
     private static final String OUTPUT4 = "%o4";
     private static final String OUTPUT5 = "%o5";
-
+    
     private static final String LOCAL0 = "%l0";
     private static final String LOCAL1 = "%l1";
     private static final String LOCAL2 = "%l2";
@@ -63,25 +63,25 @@ public class AssemblyCodeGenerator {
     private static final String LOCAL5 = "%l5";
     private static final String LOCAL6 = "%l6";
     private static final String LOCAL7 = "%l7";
-
-
+    
+    
     private static final String SP = "%sp";
     private static final String FP = "%fp";
-
+    
     private static final String GLOBAL1 = "%g1";
-
-
-
+    
+    
+    
     private static final String TWO_PARAM = "%s" + SEPARATOR + "%s, %s\n";
     private static final String TWO_STRING = "%s" + SEPARATOR + "%s \n";
     private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
     private static final String THREE_STRING = "%s\t" + "%s" + SEPARATOR +" %s \n";
     private static final String FOUR_STRING = "%s\t" + "%s" + SEPARATOR + " %s" + SEPARATOR + " %s +  \n";
     private static final String END_SAVE = "SAVE." + "%s" + "=" + "-(92 + " + "%s" +") & -8 \n\n";
-
-
+    
+    
     private FuncSTO currentFunc;
-
+    
     public AssemblyCodeGenerator (String fileToWrite) {
         try {
             fileWriter = new FileWriter(fileToWrite);
@@ -93,7 +93,7 @@ public class AssemblyCodeGenerator {
             System.exit(1);
         }
     }
-
+    
     public void DoBasicGlobalDecl (STO To, STO From){ // typename , id , location of var, value
         increaseIndent();
         if(From == null){ // not initialized
@@ -112,7 +112,7 @@ public class AssemblyCodeGenerator {
             }
         }
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
-
+        
         if(To.getGlobal()){
             writeAssembly(TWO_STRING, Global, To.getName());
         }
@@ -126,7 +126,7 @@ public class AssemblyCodeGenerator {
         }
         GoBackToText();
     }
-
+    
     public void DoBasicLocalDecl(STO to, STO from){ // called when each time they declare a local variable
         if(from == null) return;
         writeAssembly("! " + to.getName() + "=" + from.getName());
@@ -134,16 +134,16 @@ public class AssemblyCodeGenerator {
         writeAssembly(FOUR_STRING, ADD_OP, FP, OUTPUT1, OUTPUT1);
         if(from instanceof ConstSTO){
             writeAssembly(THREE_STRING, SET_OP, String.valueOf(((ConstSTO) from).getIntValue()), OUTPUT0);
-
+            
         }else{
             writeAssembly(THREE_STRING, SET_OP, String.valueOf(to.getOffset()), LOCAL7);
             writeAssembly(FOUR_STRING, ADD_OP, FP, LOCAL7, LOCAL7); //reach the address of that variable
             writeAssembly(THREE_STRING, LOAD_OP,"["+LOCAL7+"]" + OUTPUT0);
         }
         writeAssembly(TWO_STRING, OUTPUT0, "["+ OUTPUT1 + "]");
-
+        
     }
-
+    
     public void DoReturn(STO RE){
         if(RE.getName().equals("void")){
             writeAssembly("! return;\n");
@@ -160,7 +160,7 @@ public class AssemblyCodeGenerator {
         }
         PrintEnd();
     }
-
+    
     public void EndOfFunc(){
         writeAssembly("! End of function " + currentFunc + "\n");
         PrintEnd();
@@ -172,7 +172,7 @@ public class AssemblyCodeGenerator {
         writeAssembly("ret\n");
         writeAssembly("restore\n");
     }
-
+    
     public void PrintEnd(){
         writeAssembly(TWO_STRING, CALL_OP, makeFullFuncName(currentFunc) +".fini");
         writeAssembly("nop\n");
@@ -192,7 +192,7 @@ public class AssemblyCodeGenerator {
         writeAssembly(FullName + ":\n"); // not the return type. linked parameters type
         writeAssembly(THREE_STRING, SET_OP, GLOBAL1 + "\n");
         writeAssembly(FOUR_STRING, SAVE_OP, SP, GLOBAL1, SP + "\n");
-
+        
         increaseIndent();
         writeAssembly("\n! Store params");
         if(funcName.getParameter() != null){ //spit the parameters
@@ -200,14 +200,14 @@ public class AssemblyCodeGenerator {
             int startNum = 68;
             int i = 0;
             for(STO param : params){
-                writeAssembly(THREE_STRING, STORE,"%i" + String.valueOf(i) + "\t[%fp+" + String.valueOf(startNum) + "]");
+                writeAssembly(THREE_STRING, STORE,"%i" + String.valueOf(i) + "[%fp+" + String.valueOf(startNum) + "]");
                 i++;
                 startNum++;
             }
-
+            
         }
     }
-
+    
     public String makeFullFuncName(FuncSTO func){
         String name = func.getName();
         Vector<STO> params = func.getParameter();
@@ -222,10 +222,10 @@ public class AssemblyCodeGenerator {
         writeAssembly("\n\t"+ TWO_STRING, Section, TEXT);
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
     }
-
+    
     public static void main(String args[]) {
         AssemblyCodeGenerator myAsWriter = new AssemblyCodeGenerator("rc.s");
-
+        
         myAsWriter.increaseIndent();
         myAsWriter.writeAssembly(TWO_STRING, Section, BSS);
         myAsWriter.writeAssembly(STRING_NUM, Align, String.valueOf(4));
@@ -234,31 +234,31 @@ public class AssemblyCodeGenerator {
         myAsWriter.writeAssembly(args[1] + ":\n");
         myAsWriter.increaseIndent();
         myAsWriter.writeAssembly(STRING_NUM, SKIP, String.valueOf(4));
-
-
-//
-//        myAsWriter.increaseIndent();
-//        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(4095), "%l0");
-//        myAsWriter.increaseIndent();
-//        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(1024), "%l1");
-//        myAsWriter.decreaseIndent();
-//
-//        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(512), "%l2");
-
- //       myAsWriter.decreaseIndent();
+        
+        
+        //
+        //        myAsWriter.increaseIndent();
+        //        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(4095), "%l0");
+        //        myAsWriter.increaseIndent();
+        //        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(1024), "%l1");
+        //        myAsWriter.decreaseIndent();
+        //
+        //        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(512), "%l2");
+        
+        //       myAsWriter.decreaseIndent();
         myAsWriter.dispose();
     }
     public void writeAssembly(String template, String ... params) {
         StringBuilder asStmt = new StringBuilder();
-
+        
         // 10
         for (int i=0; i < indent_level; i++) {
             asStmt.append(SEPARATOR);
         }
-
+        
         // 11
         asStmt.append(String.format(template, (Object[])params));
-
+        
         try {
             fileWriter.write(asStmt.toString());
         } catch (IOException e) {
@@ -266,7 +266,7 @@ public class AssemblyCodeGenerator {
             e.printStackTrace();
         }
     }
-
+    
     // 8
     public void decreaseIndent() {
         indent_level--;
@@ -274,17 +274,17 @@ public class AssemblyCodeGenerator {
     public void increaseIndent() {
         indent_level++;
     }
-
+    
     public void doBasicDecl(STO var, boolean init)
     {
-
+        
     }
-
+    
     public void insertSectionText()
     {
         //inserting just in case section text
     }
-
+    
     public void dispose() {
         try {
             fileWriter.close();

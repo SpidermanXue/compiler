@@ -21,6 +21,7 @@ class MyParser extends parser
     private int m_nSavedLineNum;
     private SymbolTable m_symtab;
     private AssemblyCodeGenerator MyWriter;
+
     //----------------------------------------------------------------
     //
     //----------------------------------------------------------------
@@ -152,10 +153,7 @@ class MyParser extends parser
     //----------------------------------------------------------------
     void DoProgramStart()
     {
-        // Opens the global scope.
         m_symtab.openScope();
-       // String a[] = {"b"};
-        //Ass_Code_Gene.main(a);
         MyWriter = new AssemblyCodeGenerator("rc.s");
     }
 
@@ -211,7 +209,6 @@ class MyParser extends parser
                     break;
                 }
             }
-
             if (errFlag) {
                 sto = new ErrorSTO(id);
             } else {
@@ -224,7 +221,12 @@ class MyParser extends parser
                 m_errors.print(Formatter.toString(ErrorMsg.redeclared_id, id));
                 return;
             }
+
+            sto.setStatic(optStatic);
+            sto.setGlobal(this.m_symtab.getLevel()==1);
+
             m_symtab.insert(sto);
+            MyWriter.DoDecl(sto,s);
             return;
         } //end of TypeArray part
 
@@ -233,7 +235,6 @@ class MyParser extends parser
             m_errors.print(Formatter.toString(ErrorMsg.redeclared_id, id));
             return;
         }
-        //else
 
         sto = new VarSTO(id, t);
         if (t instanceof TypeInt || t instanceof TypeFloat || t instanceof TypeBool ||
@@ -245,7 +246,6 @@ class MyParser extends parser
         //check initialization
         if (s != null) {
             if (!(s instanceof ErrorSTO)) {
-
                 if (!s.getType().isAssignableTo(t)) {
                     m_nNumErrors++;
                     m_errors.print(Formatter.toString(
@@ -255,9 +255,11 @@ class MyParser extends parser
 
         }
 
+        sto.setStatic(optStatic);
+        sto.setGlobal(this.m_symtab.getLevel()==1);
         m_symtab.insert(sto);
-        String[] myStrings = {t.getName(), id, "null", "global"};
-   //     MyWriter.doBasicDecl(myStrings);
+        MyWriter.DoDecl(sto, s);
+
     }
 
     //DoVarDecl helper function for pointer, called in rc.cup
@@ -283,7 +285,7 @@ class MyParser extends parser
         }
     }
     // Check 8b : Const/variable initialization using auto keyword
-    void doAutoDecl(String id, STO exp){
+    void doAutoDecl(Boolean optStatic, String id, STO exp){
         Type t = exp.getType();
 
         if (m_symtab.accessLocal(id) != null) {
@@ -299,6 +301,8 @@ class MyParser extends parser
         }else{
             sto.setIsModifiable(false);
         }
+        sto.setStatic(optStatic);
+        sto.setGlobal(m_symtab.getLevel()==1);
         m_symtab.insert(sto);
     }
 
@@ -322,7 +326,7 @@ class MyParser extends parser
     //
     //----------------------------------------------------------------
     // Check 8b
-    void DoConstDecl (Type t, String id, STO s)
+    void DoConstDecl (Boolean optStatic, Type t, String id, STO s)
     {
         // Check ErrorSTO
         if (s instanceof ErrorSTO) {
@@ -400,6 +404,9 @@ class MyParser extends parser
             sto = new ConstSTO (id, t, i);
             sto.setIsAddressable(true);
         }
+
+        sto.setStatic(optStatic);
+        sto.setGlobal(m_symtab.getLevel()==1);
         m_symtab.insert(sto);
     }
 
@@ -547,7 +554,7 @@ class MyParser extends parser
             m_nNumErrors++;
             m_errors.print(ErrorMsg.error3a_Assign);
             return new ErrorSTO(to.getName());
-        }else {
+        } else {
             if (!from.getType().isAssignableTo(to.getType())) {
                 m_nNumErrors++;
                 m_errors.print(Formatter.toString(

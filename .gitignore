@@ -17,3 +17,4 @@ Makefile
 RC
 src/parser.java
 src/sym.java
+.DS_Store
