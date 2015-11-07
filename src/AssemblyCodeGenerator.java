@@ -1,3 +1,5 @@
+import com.sun.tools.internal.jxc.ap.Const;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
@@ -25,20 +27,23 @@ public class AssemblyCodeGenerator {
     private static final String SEPARATOR = "\t";
     // 6
     private static final String SET_OP = "set";
+
     private static final String Section = ".section";
     private static final String Align = ".align";
     private static final String Global = ".global";
-    private static final String BSS = "\".bss\"";
     private static final String SKIP = ".skip";
     private static final String WORD = ".word";
+    private static final String SINGLE = ".single";
+
+    private static final String BSS = "\".bss\"";
     private static final String TEXT = "\".text\"";
     private static final String DATA = "\".data\"";
     private static final String HEAP = "\".heap\"";
     private static final String STACK = "\".stack\"";
 
-
+    private static final String ONE_PARAM = "%s" + SEPARATOR + "%s\n";
     private static final String TWO_PARAM = "%s" + SEPARATOR + "%s, %s\n";
-    private static final String TWO_STRING = "%s" + SEPARATOR + "%s \n";
+    private static final String TWO_STRING = "%s" + SEPARATOR + "%s\n";
     private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
     private static final String THREE_STRING = "%s\t" + "%s" + SEPARATOR +" %s \n";
 
@@ -54,40 +59,74 @@ public class AssemblyCodeGenerator {
         }
     }
 
-    public void DoBasicGlobalDecl (STO To, STO From){ // typename , id , location of var, value
+    // main for testing purposes
+    public static void main(String args[]) {
+        AssemblyCodeGenerator myAsWriter = new AssemblyCodeGenerator("rc.s");
+        myAsWriter.increaseIndent();
+        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(4095), "%l0");
+        //myAsWriter.increaseIndent();
+        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(1024), "%l1");
+        //myAsWriter.decreaseIndent();
+        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(512), "%l2");
+        myAsWriter.decreaseIndent();
+        myAsWriter.dispose();
+    }
+
+    public void DoBasicGlobalDecl (STO To, STO From) {
+        boolean initConst = false;
         increaseIndent();
-        if(From == null){ // not initialized
+        if(From == null) { // not initialized
             if(To.getStatic() || To.getGlobal()) {
                 writeAssembly(TWO_STRING, Section, BSS);
             }
             else{
                 writeAssembly(TWO_STRING, Section, STACK);
             }
-        }else{ // initialized
+        } else { // initialized
             if(To.getStatic() || To.getGlobal()) {
-                writeAssembly(TWO_STRING, Section, DATA);
-            }
-            else{
+                if (From instanceof ConstSTO) {
+                    initConst = true;
+                    writeAssembly(TWO_STRING, Section, DATA);
+                } else {
+                    writeAssembly(TWO_STRING, Section, BSS);
+                }
+            } else {
                 writeAssembly(TWO_STRING, Section, STACK);
             }
         }
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
 
-        if(To.getGlobal()){
+        if(To.getGlobal()) {
             writeAssembly(TWO_STRING, Global, To.getName());
         }
+
         decreaseIndent();
         writeAssembly(To.getName() + ":\n");
         increaseIndent();
-        if(From == null) {
-            writeAssembly(STRING_NUM, SKIP, String.valueOf(4));
-        }else{
-            writeAssembly(STRING_NUM, WORD, From.getValue());
+
+        if (initConst) {
+            if(From.getType() instanceof TypeInt) {
+                if (To.getType() instanceof TypeInt) {
+                    writeAssembly(STRING_NUM, WORD, ((ConstSTO) From).getIntValue_As());
+                } else {
+                    writeAssembly(STRING_NUM, SINGLE, ((ConstSTO) From).getFloatValue_As());
+                }
+            } else if (From.getType() instanceof TypeFloat) {
+                writeAssembly(STRING_NUM, SINGLE, ((ConstSTO) From).getFloatValue_As());
+            } else if (From.getType() instanceof TypeBool) {
+                writeAssembly(STRING_NUM, WORD, ((ConstSTO) From).getBoolValue_As());
+            } else {
+                System.out.println("ALERT: Something is wrong with .rc file, or we missed something");
+            }
+        } else {
+            writeAssembly(STRING_NUM, SKIP, String.valueOf(To.getType().getSize()));
         }
+
         GoBackToText();
+        decreaseIndent();
     }
 
-    public void DoBasicLocalDecl(STO to, STO From){
+    public void DoBasicLocalDecl(STO to, STO From) {
 
     }
 
@@ -104,46 +143,16 @@ public class AssemblyCodeGenerator {
         writeAssembly(THREE_STRING, SET_OP, "%g1\n");
         decreaseIndent();
         writeAssembly("\n! Store params");
-        if(funName.get)
-
-        writeAssembly();
-
-
-
-
-
-
+        //if(funName.get)
+        //writeAssembly();
     }
+
     public void GoBackToText(){
         writeAssembly("\n\t"+ TWO_STRING, Section, TEXT);
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
     }
 
-    public static void main(String args[]) {
-        AssemblyCodeGenerator myAsWriter = new AssemblyCodeGenerator("rc.s");
-
-        myAsWriter.increaseIndent();
-        myAsWriter.writeAssembly(TWO_STRING, Section, BSS);
-        myAsWriter.writeAssembly(STRING_NUM, Align, String.valueOf(4));
-        myAsWriter.writeAssembly(STRING_NUM, Global, args[1]);
-        myAsWriter.decreaseIndent();
-        myAsWriter.writeAssembly(args[1] + ":\n");
-        myAsWriter.increaseIndent();
-        myAsWriter.writeAssembly(STRING_NUM, SKIP, String.valueOf(4));
-
-
-//
-//        myAsWriter.increaseIndent();
-//        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(4095), "%l0");
-//        myAsWriter.increaseIndent();
-//        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(1024), "%l1");
-//        myAsWriter.decreaseIndent();
-//
-//        myAsWriter.writeAssembly(TWO_PARAM, SET_OP, String.valueOf(512), "%l2");
-
- //       myAsWriter.decreaseIndent();
-        myAsWriter.dispose();
-    }
+    //9
     public void writeAssembly(String template, String ... params) {
         StringBuilder asStmt = new StringBuilder();
 
@@ -154,7 +163,6 @@ public class AssemblyCodeGenerator {
 
         // 11
         asStmt.append(String.format(template, (Object[])params));
-
         try {
             fileWriter.write(asStmt.toString());
         } catch (IOException e) {
@@ -167,18 +175,9 @@ public class AssemblyCodeGenerator {
     public void decreaseIndent() {
         indent_level--;
     }
+
     public void increaseIndent() {
         indent_level++;
-    }
-
-    public void doBasicDecl(STO var, boolean init)
-    {
-
-    }
-
-    public void insertSectionText()
-    {
-        //inserting just in case section text
     }
 
     public void dispose() {

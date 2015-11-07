@@ -21,6 +21,7 @@ class MyParser extends parser
     private int m_nSavedLineNum;
     private SymbolTable m_symtab;
     private AssemblyCodeGenerator MyWriter;
+
     //----------------------------------------------------------------
     //
     //----------------------------------------------------------------
@@ -152,10 +153,7 @@ class MyParser extends parser
     //----------------------------------------------------------------
     void DoProgramStart()
     {
-        // Opens the global scope.
         m_symtab.openScope();
-       // String a[] = {"b"};
-        //Ass_Code_Gene.main(a);
         MyWriter = new AssemblyCodeGenerator("rc.s");
     }
 
@@ -211,7 +209,6 @@ class MyParser extends parser
                     break;
                 }
             }
-
             if (errFlag) {
                 sto = new ErrorSTO(id);
             } else {
@@ -233,7 +230,6 @@ class MyParser extends parser
             m_errors.print(Formatter.toString(ErrorMsg.redeclared_id, id));
             return;
         }
-        //else
 
         sto = new VarSTO(id, t);
         if (t instanceof TypeInt || t instanceof TypeFloat || t instanceof TypeBool ||
@@ -245,7 +241,6 @@ class MyParser extends parser
         //check initialization
         if (s != null) {
             if (!(s instanceof ErrorSTO)) {
-
                 if (!s.getType().isAssignableTo(t)) {
                     m_nNumErrors++;
                     m_errors.print(Formatter.toString(
@@ -254,10 +249,9 @@ class MyParser extends parser
             }
 
         }
-
+        // set static
+        sto.setStatic(optStatic);
         m_symtab.insert(sto);
-        String[] myStrings = {t.getName(), id, "null", "global"};
-   //     MyWriter.doBasicDecl(myStrings);
     }
 
     //DoVarDecl helper function for pointer, called in rc.cup
@@ -547,7 +541,7 @@ class MyParser extends parser
             m_nNumErrors++;
             m_errors.print(ErrorMsg.error3a_Assign);
             return new ErrorSTO(to.getName());
-        }else {
+        } else {
             if (!from.getType().isAssignableTo(to.getType())) {
                 m_nNumErrors++;
                 m_errors.print(Formatter.toString(

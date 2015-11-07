@@ -11,6 +11,8 @@ abstract class STO
 	private boolean m_isAddressable;
 	private boolean m_isModifiable;
 	protected int scopeLevel;
+	protected boolean isGlobal;
+    protected boolean isStatic;
 
 	//----------------------------------------------------------------
 	//
@@ -130,4 +132,20 @@ abstract class STO
 	{
 		return this.scopeLevel;
 	}
+
+    public void setStatic(boolean optStatic)
+    {
+        this.isStatic = optStatic;
+    }
+
+    public boolean getStatic()
+    {
+        return this.isStatic;
+    }
+
+
+    public boolean getGlobal()
+    {
+        return this.isGlobal;
+    }
 }
