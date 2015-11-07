@@ -1,0 +1,17 @@
+bin
+failedTests
+bin
+build.xml
+cse131.iml
+CUP_OverView.txt
+GETTING_STARTED
+lib
+.idea*
+*.pyc
+project1
+project2
+testcases
+yuno
+YUNOSOC*
+Makefile
+RC
