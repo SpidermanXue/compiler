@@ -171,8 +171,7 @@ class MyParser extends parser
     //----------------------------------------------------------------
 
     // Check 8a: Constant/Variable initialization
-    void DoVarDecl(Boolean optStatic, String id, Type t, STO s, Vector <STO> array)
-    {//SET STO, DECLARE VARIABLE, a[5] = 10; call here
+    void DoVarDecl(Boolean optStatic, String id, Type t, STO s, Vector <STO> array) {//SET STO, DECLARE VARIABLE, a[5] = 10; call here
         //int x , id x, t.getname = int , int x = y, y is s, v is for array
         STO sto;
         Vector<Integer> domain = new Vector<Integer>();
@@ -180,7 +179,6 @@ class MyParser extends parser
         if (optStatic == null) {
             optStatic = false;
         }
-
         // TypeArray
         if (array != null) {
             for (STO index : array) {
@@ -195,7 +193,7 @@ class MyParser extends parser
                         errFlag = true;
                         break;
                     }
-                    int range = ((ConstSTO)index).getIntValue();
+                    int range = ((ConstSTO) index).getIntValue();
                     if (range <= 0) {
                         m_nNumErrors++;
                         m_errors.print(Formatter.toString(ErrorMsg.error10z_Array, range));
@@ -234,7 +232,7 @@ class MyParser extends parser
         }
 
         sto = new VarSTO(id, t);
-        if(t instanceof TypeInt || t instanceof TypeFloat || t instanceof TypeBool ||
+        if (t instanceof TypeInt || t instanceof TypeFloat || t instanceof TypeBool ||
                 (t instanceof TypePointer && !(t instanceof TypeNullPointer)) ||
                 t instanceof TypeStruct) {
             sto.setIsModifiable(true);
@@ -242,11 +240,11 @@ class MyParser extends parser
         }
         //check initialization
         if (s != null) {
-            if(!(s instanceof ErrorSTO)) {
+            if (!(s instanceof ErrorSTO)) {
                 if (!s.getType().isAssignableTo(t)) {
                     m_nNumErrors++;
                     m_errors.print(Formatter.toString(
-                            ErrorMsg.error8_Assign,s.getType().getName(), t.getName()));
+                            ErrorMsg.error8_Assign, s.getType().getName(), t.getName()));
                 }
             }
 
@@ -542,7 +540,7 @@ class MyParser extends parser
             m_nNumErrors++;
             m_errors.print(ErrorMsg.error3a_Assign);
             return new ErrorSTO(to.getName());
-        }else {
+        } else {
             if (!from.getType().isAssignableTo(to.getType())) {
                 m_nNumErrors++;
                 m_errors.print(Formatter.toString(
