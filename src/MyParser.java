@@ -257,7 +257,7 @@ class MyParser extends parser
 
         m_symtab.insert(sto);
         String[] myStrings = {t.getName(), id, "null", "global"};
-        MyWriter.doBasicDecl(myStrings);
+   //     MyWriter.doBasicDecl(myStrings);
     }
 
     //DoVarDecl helper function for pointer, called in rc.cup
