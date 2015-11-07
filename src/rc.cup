@@ -247,7 +247,7 @@ VarDecl ::=         OptStatic:_1 DecoratedType:_2 T_ID:_3 OptArrayList:_4 OptIni
     |               OptStatic:_1 T_AUTO T_ID:_3 T_ASSIGN Expr:_5
                     {:
                         //_1 is static token, seems need to return a boolean.
-                       ((MyParser)parser).doAutoDecl(_3,_5);
+                       ((MyParser)parser).doAutoDecl(_1,_3,_5);
                     :}
                     T_SEMI
     |               OptStatic:_1 StructType:_2 T_ID:_3 OptArrayList:_4 OptCtorCall:_5
@@ -260,12 +260,12 @@ VarDecl ::=         OptStatic:_1 DecoratedType:_2 T_ID:_3 OptArrayList:_4 OptIni
 
 ConstDecl ::=       OptStatic:_1 T_CONST BasicType:_2 T_ID:_3 T_ASSIGN ConstExpr:_5
                     {: //8a
-                        ((MyParser) parser).DoConstDecl (_2,_3,_5);
+                        ((MyParser) parser).DoConstDecl (_1,_2,_3,_5);
                     :}
                     T_SEMI
     |               OptStatic:_1 T_CONST T_AUTO T_ID:_3 T_ASSIGN ConstExpr:_5
                     {:
-                        ((MyParser) parser).DoConstDecl (null,_3,_5);
+                        ((MyParser) parser).DoConstDecl (_1,null,_3,_5);
                     :}
                     T_SEMI
     ;

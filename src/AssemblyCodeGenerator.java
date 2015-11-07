@@ -72,9 +72,20 @@ public class AssemblyCodeGenerator {
         myAsWriter.dispose();
     }
 
+    public void DoDecl(STO To, STO From)
+    {
+        if (To.getGlobal()) {
+            DoBasicGlobalDecl(To, From);
+        } else {
+            DoBasicLocalDecl(To, From);
+        }
+    }
     public void DoBasicGlobalDecl (STO To, STO From) {
         boolean initConst = false;
+        boolean initNonConst = false;
         increaseIndent();
+        writeAssembly("\n");
+
         if(From == null) { // not initialized
             if(To.getStatic() || To.getGlobal()) {
                 writeAssembly(TWO_STRING, Section, BSS);
@@ -88,15 +99,17 @@ public class AssemblyCodeGenerator {
                     initConst = true;
                     writeAssembly(TWO_STRING, Section, DATA);
                 } else {
+                    initNonConst = true;
                     writeAssembly(TWO_STRING, Section, BSS);
                 }
             } else {
                 writeAssembly(TWO_STRING, Section, STACK);
             }
         }
+
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
 
-        if(To.getGlobal()) {
+        if(To.getGlobal() && (!To.getStatic())) {
             writeAssembly(TWO_STRING, Global, To.getName());
         }
 
@@ -122,11 +135,17 @@ public class AssemblyCodeGenerator {
             writeAssembly(STRING_NUM, SKIP, String.valueOf(To.getType().getSize()));
         }
 
+        if (initNonConst) {
+            //do something
+            int doSomething;
+        }
+
         GoBackToText();
         decreaseIndent();
     }
 
-    public void DoBasicLocalDecl(STO to, STO From) {
+    public void DoBasicLocalDecl(STO to, STO From)
+    {
 
     }
 
@@ -148,7 +167,8 @@ public class AssemblyCodeGenerator {
     }
 
     public void GoBackToText(){
-        writeAssembly("\n\t"+ TWO_STRING, Section, TEXT);
+        writeAssembly("\n");
+        writeAssembly(TWO_STRING, Section, TEXT);
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
     }
 
