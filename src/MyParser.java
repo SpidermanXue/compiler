@@ -249,7 +249,8 @@ class MyParser extends parser
             }
 
         }
-
+        // set static
+        sto.setStatic(optStatic);
         m_symtab.insert(sto);
     }
 

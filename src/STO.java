@@ -133,10 +133,16 @@ abstract class STO
 		return this.scopeLevel;
 	}
 
+    public void setStatic(boolean optStatic)
+    {
+        this.isStatic = optStatic;
+    }
+
     public boolean getStatic()
     {
         return this.isStatic;
     }
+
 
     public boolean getGlobal()
     {

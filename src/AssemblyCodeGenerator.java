@@ -45,6 +45,7 @@ public class AssemblyCodeGenerator {
     private static final String TWO_PARAM = "%s" + SEPARATOR + "%s, %s\n";
     private static final String TWO_STRING = "%s" + SEPARATOR + "%s\n";
     private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
+    private static final String THREE_STRING = "%s\t" + "%s" + SEPARATOR +" %s \n";
 
     public AssemblyCodeGenerator (String fileToWrite) {
         try {
@@ -71,10 +72,9 @@ public class AssemblyCodeGenerator {
         myAsWriter.dispose();
     }
 
-    public void DoBasicDecl (STO To, STO From) {
+    public void DoBasicGlobalDecl (STO To, STO From) {
         boolean initConst = false;
         increaseIndent();
-
         if(From == null) { // not initialized
             if(To.getStatic() || To.getGlobal()) {
                 writeAssembly(TWO_STRING, Section, BSS);
@@ -90,12 +90,10 @@ public class AssemblyCodeGenerator {
                 } else {
                     writeAssembly(TWO_STRING, Section, BSS);
                 }
-            }
-            else {
+            } else {
                 writeAssembly(TWO_STRING, Section, STACK);
             }
         }
-
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
 
         if(To.getGlobal()) {
@@ -109,7 +107,7 @@ public class AssemblyCodeGenerator {
         if (initConst) {
             if(From.getType() instanceof TypeInt) {
                 if (To.getType() instanceof TypeInt) {
-                    writeAssembly(STRING_NUM, WORD, String.valueOf(((ConstSTO) From).getIntValue()));
+                    writeAssembly(STRING_NUM, WORD, ((ConstSTO) From).getIntValue_As());
                 } else {
                     writeAssembly(STRING_NUM, SINGLE, ((ConstSTO) From).getFloatValue_As());
                 }
@@ -128,12 +126,31 @@ public class AssemblyCodeGenerator {
         decreaseIndent();
     }
 
+    public void DoBasicLocalDecl(STO to, STO From) {
+
+    }
+
+    public void DoFuncDecl(STO func){
+        FuncSTO funcName = (FuncSTO) func;
+        increaseIndent();
+        writeAssembly(TWO_STRING, Section, TEXT);
+        writeAssembly(STRING_NUM, SKIP, String.valueOf(4));
+        writeAssembly(TWO_STRING, Global, funcName.getName());
+        decreaseIndent();
+        writeAssembly(func.getName() + ":\n");
+        writeAssembly(func.getName()+"."+funcName.getReturnType().getName() + ":\n");
+        writeAssembly(TWO_STRING, Section, TEXT);
+        writeAssembly(THREE_STRING, SET_OP, "%g1\n");
+        decreaseIndent();
+        writeAssembly("\n! Store params");
+        //if(funName.get)
+        //writeAssembly();
+    }
+
     public void GoBackToText(){
         writeAssembly("\n\t"+ TWO_STRING, Section, TEXT);
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
     }
-
-
 
     //9
     public void writeAssembly(String template, String ... params) {
@@ -153,7 +170,6 @@ public class AssemblyCodeGenerator {
             e.printStackTrace();
         }
     }
-
 
     // 8
     public void decreaseIndent() {

@@ -105,20 +105,25 @@ class ConstSTO extends STO
 	{
 		return m_value.floatValue();
 	}
-
-    /* Get Float as a string in the format use by rc.s file (ex: 1.78 becomes 0r1.78)*/
-	public String getFloatValue_As()
-	{
-		return "0r"+Float.toString(m_value.floatValue());
-	}
-
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
-	public boolean getBoolValue() 
+    public boolean getBoolValue()
 	{
 		return !BigDecimal.ZERO.equals(m_value);
 	}
+
+
+    public String getIntValue_As()
+    {
+        return String.valueOf(m_value.intValue());
+    }
+
+    /* Get Float as a string in the format use by rc.s file (ex: 1.78 becomes 0r1.78)*/
+    public String getFloatValue_As()
+    {
+        return "0r"+Float.toString(m_value.floatValue());
+    }
 
     public String getBoolValue_As()
     {
