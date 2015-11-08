@@ -78,7 +78,7 @@ public class AssemblyCodeGenerator {
     private static final String TWO_STRING = "%s" + SEPARATOR + "%s \n";
     private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
     private static final String THREE_STRING = "%s\t" + "%s" + SEPARATOR +" %s \n";
-    private static final String FOUR_STRING = "%s\t" + "%s" + SEPARATOR + " %s" + SEPARATOR + " %s +  \n";
+    private static final String FOUR_STRING = "%s\t" + "%s" + SEPARATOR + " %s" + SEPARATOR + " %s"+ "\n";
     private static final String END_SAVE = "SAVE." + "%s" + "=" + "-(92 + " + "%s" +") & -8 \n\n";
 
     private FuncSTO currentFunc;
@@ -146,7 +146,7 @@ public class AssemblyCodeGenerator {
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
 
         if(To.getGlobal() && (!To.getStatic())) {
-            writeAssembly(TWO_STRING, Global, To.getName());
+            writeAssembly(TWO_STRING, Global, "\t" + To.getName());
         }
 
         decreaseIndent();
@@ -278,6 +278,9 @@ public class AssemblyCodeGenerator {
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
     }
 
+    public void DoCout(){
+
+    }
     //9
     public void writeAssembly(String template, String ... params) {
         StringBuilder asStmt = new StringBuilder();
