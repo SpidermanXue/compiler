@@ -75,10 +75,11 @@ public class AssemblyCodeGenerator {
 
     private static final String ONE_PARAM = "%s" + SEPARATOR + "%s\n";
     private static final String TWO_PARAM = "%s" + SEPARATOR + "%s, %s\n";
+    private static final String THREE_PARAM = "%s" + SEPARATOR + "%s, %s, %s\n";
     private static final String TWO_STRING = "%s" + SEPARATOR + "%s \n";
     private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
     private static final String THREE_STRING = "%s\t" + "%s" + SEPARATOR +" %s \n";
-    private static final String FOUR_STRING = "%s\t" + "%s" + SEPARATOR + " %s" + SEPARATOR + " %s"+ "\n";
+    private static final String FOUR_STRING = "%s"+SEPARATOR + "%s" + SEPARATOR + " %s" + SEPARATOR + " %s"+"\n";
     private static final String END_SAVE = "SAVE." + "%s" + "=" + "-(92 + " + "%s" +") & -8 \n\n";
 
     private FuncSTO currentFunc;
@@ -146,7 +147,7 @@ public class AssemblyCodeGenerator {
         writeAssembly(STRING_NUM, Align, String.valueOf(4));
 
         if(To.getGlobal() && (!To.getStatic())) {
-            writeAssembly(TWO_STRING, Global, "\t" + To.getName());
+            writeAssembly(TWO_STRING, Global +"\t", To.getName());
         }
 
         decreaseIndent();
@@ -192,7 +193,7 @@ public class AssemblyCodeGenerator {
         }else{
             writeAssembly(THREE_STRING, SET_OP, String.valueOf(to.getOffset()), LOCAL7);
             writeAssembly(FOUR_STRING, ADD_OP, FP, LOCAL7, LOCAL7); //reach the address of that variable
-            writeAssembly(THREE_STRING, LOAD_OP,"["+LOCAL7+"]" , OUTPUT0);
+            writeAssembly(THREE_STRING, LOAD_OP,"["+LOCAL7+"]", OUTPUT0);
         }
         writeAssembly(TWO_STRING, OUTPUT0, "["+ OUTPUT1 + "]");
     }
@@ -284,12 +285,10 @@ public class AssemblyCodeGenerator {
     //9
     public void writeAssembly(String template, String ... params) {
         StringBuilder asStmt = new StringBuilder();
-
         // 10
         for (int i=0; i < indent_level; i++) {
             asStmt.append(SEPARATOR);
         }
-
         // 11
         asStmt.append(String.format(template, (Object[])params));
         try {
