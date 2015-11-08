@@ -380,8 +380,7 @@ class MyParser extends parser
         }
 
         // Check Previous Declare
-        if (m_symtab.accessLocal(id) != null)
-        {
+        if (m_symtab.accessLocal(id) != null) {
             m_nNumErrors++;
             m_errors.print(Formatter.toString(ErrorMsg.redeclared_id, id));
             return;
@@ -407,6 +406,7 @@ class MyParser extends parser
 
         sto.setStatic(optStatic);
         sto.setGlobal(m_symtab.getLevel()==1);
+        MyWriter.DoDecl(sto,s);
         m_symtab.insert(sto);
     }
 
