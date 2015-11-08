@@ -20,14 +20,16 @@ public class AssemblyCodeGenerator {
     private FileWriter fileWriter;
     // 4
     private static final String FILE_HEADER =
-            "/*\n" +
-                    " * Generated %s\n" +
-                    " */\n\n";
+            "/*\n" + " * Generated %s\n" + " */\n\n";
     // 5
     private static final String SEPARATOR = "\t";
     // 6
     private static final String SET_OP = "set";
-
+    private static final String SAVE_OP = "save";
+    private static final String ADD_OP = "add";
+    private static final String LOAD_OP = "ld";
+    private static final String CALL_OP = "call";
+    private static final String STORE = "st";
     private static final String Section = ".section";
     private static final String Align = ".align";
     private static final String Global = ".global";
@@ -41,11 +43,45 @@ public class AssemblyCodeGenerator {
     private static final String HEAP = "\".heap\"";
     private static final String STACK = "\".stack\"";
 
+    private static final String INPUT0 = "%i0";
+    private static final String INPUT1 = "%i1";
+    private static final String INPUT2 = "%i2";
+    private static final String INPUT3 = "%i3";
+    private static final String INPUT4 = "%i4";
+    private static final String INPUT5 = "%i5";
+
+    private static final String OUTPUT0 = "%o0";
+    private static final String OUTPUT1 = "%o1";
+    private static final String OUTPUT2 = "%o2";
+    private static final String OUTPUT3 = "%o3";
+    private static final String OUTPUT4 = "%o4";
+    private static final String OUTPUT5 = "%o5";
+
+    private static final String LOCAL0 = "%l0";
+    private static final String LOCAL1 = "%l1";
+    private static final String LOCAL2 = "%l2";
+    private static final String LOCAL3 = "%l3";
+    private static final String LOCAL4 = "%l4";
+    private static final String LOCAL5 = "%l5";
+    private static final String LOCAL6 = "%l6";
+    private static final String LOCAL7 = "%l7";
+
+
+    private static final String SP = "%sp";
+    private static final String FP = "%fp";
+
+    private static final String GLOBAL1 = "%g1";
+
+
     private static final String ONE_PARAM = "%s" + SEPARATOR + "%s\n";
     private static final String TWO_PARAM = "%s" + SEPARATOR + "%s, %s\n";
-    private static final String TWO_STRING = "%s" + SEPARATOR + "%s\n";
+    private static final String TWO_STRING = "%s" + SEPARATOR + "%s \n";
     private static final String STRING_NUM = "%s" + SEPARATOR + SEPARATOR + "%s \n";
     private static final String THREE_STRING = "%s\t" + "%s" + SEPARATOR +" %s \n";
+    private static final String FOUR_STRING = "%s\t" + "%s" + SEPARATOR + " %s" + SEPARATOR + " %s +  \n";
+    private static final String END_SAVE = "SAVE." + "%s" + "=" + "-(92 + " + "%s" +") & -8 \n\n";
+
+    private FuncSTO currentFunc;
 
     public AssemblyCodeGenerator (String fileToWrite) {
         try {
@@ -144,26 +180,96 @@ public class AssemblyCodeGenerator {
         decreaseIndent();
     }
 
-    public void DoBasicLocalDecl(STO to, STO From)
+    public void DoBasicLocalDecl(STO to, STO from)
     {
+        if(from == null) return;
+        writeAssembly("! " + to.getName() + "=" + from.getName());
+        writeAssembly(THREE_STRING, SET_OP, String.valueOf(to.getOffset()), OUTPUT0);
+        writeAssembly(FOUR_STRING, ADD_OP, FP, OUTPUT1, OUTPUT1);
+        if(from instanceof ConstSTO){
+            writeAssembly(THREE_STRING, SET_OP, String.valueOf(((ConstSTO) from).getIntValue()), OUTPUT0);
 
+        }else{
+            writeAssembly(THREE_STRING, SET_OP, String.valueOf(to.getOffset()), LOCAL7);
+            writeAssembly(FOUR_STRING, ADD_OP, FP, LOCAL7, LOCAL7); //reach the address of that variable
+            writeAssembly(THREE_STRING, LOAD_OP,"["+LOCAL7+"]" + OUTPUT0);
+        }
+        writeAssembly(TWO_STRING, OUTPUT0, "["+ OUTPUT1 + "]");
     }
 
-    public void DoFuncDecl(STO func){
+    public void DoReturn(STO RE){
+        if(RE.getName().equals("void")){
+            writeAssembly("! return;\n");
+        }else if(RE instanceof ConstSTO){
+            ConstSTO value = (ConstSTO) RE;
+            writeAssembly("! return" + value.getIntValue() + ";\n");
+            writeAssembly(TWO_STRING, String.valueOf(value.getIntValue()), INPUT1);
+        }else if(RE instanceof VarSTO){
+            VarSTO value = (VarSTO) RE;
+            writeAssembly("! return" + value.getName() + ";\n");
+            writeAssembly(THREE_STRING, String.valueOf(value.getOffset()), LOCAL7 );
+            writeAssembly(FOUR_STRING, FP, LOCAL7, LOCAL7);
+            writeAssembly(THREE_STRING, LOAD_OP, "[" + LOCAL7 + "]", INPUT0);
+        }
+        PrintEnd();
+    }
+
+    public void EndOfFunc(){
+        writeAssembly("! End of function " + makeFullFuncName(currentFunc) + "\n");
+        PrintEnd();
+        writeAssembly(END_SAVE, makeFullFuncName(currentFunc), String.valueOf(currentFunc.getVarSize()));
+        decreaseIndent();
+        writeAssembly(currentFunc+".fini:\n");
+        increaseIndent();
+        writeAssembly(FOUR_STRING, SP, String.valueOf(-96), SP);
+        writeAssembly("ret\n");
+        writeAssembly("restore\n");
+    }
+
+    public void PrintEnd(){
+        writeAssembly(TWO_STRING, CALL_OP, makeFullFuncName(currentFunc) +".fini");
+        writeAssembly("nop\n");
+        writeAssembly("ret\n");
+        writeAssembly("restore\n");
+    }
+
+    public void DoFuncDecl(STO func){ // this part should be called after parameter's part called in this function scope ends
         FuncSTO funcName = (FuncSTO) func;
+        currentFunc = funcName;
         increaseIndent();
         writeAssembly(TWO_STRING, Section, TEXT);
         writeAssembly(STRING_NUM, SKIP, String.valueOf(4));
         writeAssembly(TWO_STRING, Global, funcName.getName());
         decreaseIndent();
         writeAssembly(func.getName() + ":\n");
-        writeAssembly(func.getName()+"."+funcName.getReturnType().getName() + ":\n");
-        writeAssembly(TWO_STRING, Section, TEXT);
-        writeAssembly(THREE_STRING, SET_OP, "%g1\n");
-        decreaseIndent();
+        String FullName = makeFullFuncName(funcName);
+        writeAssembly(FullName + ":\n"); // not the return type. linked parameters type
+        writeAssembly(THREE_STRING, SET_OP, GLOBAL1 + "\n");
+        writeAssembly(FOUR_STRING, SAVE_OP, SP, GLOBAL1, SP + "\n");
+
+        increaseIndent();
         writeAssembly("\n! Store params");
-        //if(funName.get)
-        //writeAssembly();
+        if(funcName.getParameter() != null){ //spit the parameters
+            Vector<STO> params = funcName.getParameter();
+            int startNum = 68;
+            int i = 0;
+            for(STO param : params){
+                writeAssembly(THREE_STRING, STORE,"%i" + String.valueOf(i) + "[%fp+" + String.valueOf(startNum) + "]");
+                i++;
+                startNum++;
+            }
+        }
+    }
+
+    public String makeFullFuncName(FuncSTO func){
+        String name = func.getName();
+        Vector<STO> params = func.getParameter();
+        if(params != null){
+            for (STO param : params){
+                name += "."+param.getName();
+            }
+        }
+        return name;
     }
 
     public void GoBackToText(){

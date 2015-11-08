@@ -17,6 +17,7 @@ class FuncSTO extends STO
 
     private boolean structFuncFlag = false;
     private StructdefSTO struct;
+	private int varSize;
     //-------
 	// --------------------------------------------------------
 	//
@@ -104,5 +105,10 @@ class FuncSTO extends STO
 	public int getScopeLevel()
 	{
 		return this.scopeLevel;
+	}
+
+	public int getVarSize()
+	{
+		return this.varSize;
 	}
 }

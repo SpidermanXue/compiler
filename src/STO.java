@@ -13,6 +13,7 @@ abstract class STO
 	protected int scopeLevel;
 	protected boolean isGlobal;
     protected boolean isStatic;
+    protected String offset;
 
 	//----------------------------------------------------------------
 	//
@@ -31,6 +32,7 @@ abstract class STO
 		setType(typ);
 		setIsAddressable(false);
 		setIsModifiable(false);
+        this.offset = "";
 	}
 
 	//----------------------------------------------------------------
@@ -152,4 +154,14 @@ abstract class STO
     {
         return this.isGlobal;
     }
+
+    public void setOffset(int offset)
+    {
+        this.offset = String.valueOf(offset);
+    }
+    public String getOffset()
+    {
+        return this.offset;
+    }
+
 }
