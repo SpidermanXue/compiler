@@ -192,7 +192,7 @@ public class AssemblyCodeGenerator {
         }else{
             writeAssembly(THREE_STRING, SET_OP, String.valueOf(to.getOffset()), LOCAL7);
             writeAssembly(FOUR_STRING, ADD_OP, FP, LOCAL7, LOCAL7); //reach the address of that variable
-            writeAssembly(THREE_STRING, LOAD_OP,"["+LOCAL7+"]" + OUTPUT0);
+            writeAssembly(THREE_STRING, LOAD_OP,"["+LOCAL7+"]" , OUTPUT0);
         }
         writeAssembly(TWO_STRING, OUTPUT0, "["+ OUTPUT1 + "]");
     }
