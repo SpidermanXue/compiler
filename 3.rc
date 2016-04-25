@@ -1,0 +1,28 @@
+float n;
+float j = 1;
+static float i = 1.2;
+const float pi = 3.14;
+bool check = true;
+int mmm = 1;
+function : int main (){
+    bool c = check;
+    bool d = true;
+    bool e = false;
+    float x = j;
+    int p = 1;
+    const int m = 1;
+    float k = pi;
+    float y = k;
+    float u = 3.16;
+    float q = 3;
+    float oo;
+    int uu = 1;
+
+
+    cout << x = 3.1 << x << endl;
+    cout << p << endl;
+    cout << d <<  d = false <<endl;
+    cout << "hihi" << endl;
+    return 1;
+}
+

@@ -1,0 +1,25 @@
+structdef MYS {
+	int x;
+	int pp;
+	MYS(int a){}
+	function : void foo (int a, int m, int n){
+		int y = 1;
+				this.x = 2;
+		this.pp = 1;
+	}
+	function : void shabi(){
+		int l = 1;
+		this.x = 2;
+		int ok = 111;
+	}
+
+
+};
+
+function : void main(){
+	int l = 1;
+	int m = 1;
+
+	MYS a1 : (1);
+	a1.foo(1,1,1);
+}

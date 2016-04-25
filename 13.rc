@@ -1,0 +1,4 @@
+function : void main(){
+
+	float a = 1 + 1.1 * 10;
+}

@@ -1,0 +1,15 @@
+int m = 2;
+static int a;
+static int h = 1;
+const int n = 1;
+function : void main(int k, int b) {
+	int u;
+	static int t = 3;
+	static int j;
+	const int z = 2;
+	int y = t;
+	int x = a;
+	x == h;
+	x+1;
+	x++;
+}

@@ -295,7 +295,6 @@ StructdefDecl ::=   T_STRUCTDEF T_ID_U:_1 T_LBRACE
                     OptFieldFuncsList
                     {:
                     //    ((MyParser) parser).DoBlockClose(); //close scope? why ?
-                      //  ((MyParser) parser).DoStructdefDecl (_1);
                     :}
                     T_RBRACE
                     {:
@@ -385,12 +384,11 @@ FuncDefStr ::=      T_FUNCTION T_COLON ReturnType:_1 OptRef:_2 T_ID:_3
                     :}
                     T_LBRACE OptStmtList
                     {:
-                        //((MyParser) parser).DoFuncDecl_2();
                         ((MyParser) parser).noReturn();
                     :}
                     T_RBRACE
                     {:  //check no return
-                        ((MyParser) parser).DoFuncDecl_2();
+                        ((MyParser) parser).DoFuncDeclStr_2();
 
                     :}
     ;
@@ -409,7 +407,7 @@ FuncDef ::=         T_FUNCTION T_COLON ReturnType:_1 OptRef:_2 T_ID:_3
                         ((MyParser) parser).DoFormalParams(_4);
                     :}
                     T_LBRACE OptStmtList
-                    {:
+                    {:  //body code of function
                         //((MyParser) parser).DoFuncDecl_2();
                         ((MyParser) parser).noReturn();
                     :}
@@ -575,10 +573,19 @@ Stmt ::=            VarDecl
                     {:
                         ((MyParser) parser).DoBlockOpen();
                     :}
-    |               Expr T_SEMI
+    |               Expr:_1 T_SEMI
+                    {:
+                        ((MyParser) parser).ResetUpdateFlag(_1);
+                    :}
     |               IfStmt
     |               WhileStmt
+                    {:
+                        ((MyParser) parser).EndOfWhile();
+                    :}
     |               ForeachStmt
+                    {:
+                        ((MyParser) parser).EndOfWhile();
+                    :}
     |               BreakStmt
     |               ContinueStmt
     |               ExitStmt
@@ -656,11 +663,19 @@ IfStmt ::=          T_IF Expr:_1
                         ((MyParser) parser).DoBlockOpen();
                         ((MyParser) parser).checkIfExpr(_1);
                         ((MyParser) parser).setIfFlag();
+                        ((MyParser) parser).DoIfStmt(_1);
                     :}
                     CodeBlock
                     {:
+                        // do BA
+                        ((MyParser) parser).DoBa();
+
                     :}
                     OptElse
+                    {:
+                            ((MyParser) parser).DoElseStmt();
+
+                    :}
     ;
 
 
@@ -668,7 +683,6 @@ OptElse ::=         T_ELSE
                     {:
                          ((MyParser) parser).DoBlockOpen();
                          ((MyParser) parser).setIfFlag();
-
                     :}
                     CodeBlock
                     {:
@@ -677,11 +691,18 @@ OptElse ::=         T_ELSE
     ;
 
 
-WhileStmt ::=       T_WHILE Expr:_1
+WhileStmt ::=       T_WHILE
+                    {:
+                      ((MyParser) parser).DoWhileStmt();
+                    :}
+                    Expr:_1
                     {:
                         ((MyParser) parser).DoBlockOpen();
                         ((MyParser) parser).setWhileFlag();
                         ((MyParser) parser).checkIfExpr(_1);
+                        ((MyParser) parser).CheckWhileCondition(_1);
+
+
                     :}
                     CodeBlock
                     {:
@@ -694,6 +715,8 @@ ForeachStmt ::=     T_FOREACH T_LPAREN Type:_1 OptRef:_2 T_ID:_3 T_COLON Expr:_4
                         ((MyParser) parser).DoBlockOpen();
                         ((MyParser) parser).setForEachFlag();
                         ((MyParser) parser).doForEach(_1, _2, _3, _4);
+                        ((MyParser) parser).CheckForEachCondition(_4);
+
                     :}
                     CodeBlock
                     {:
@@ -733,21 +756,36 @@ ReturnStmt ::=      T_RETURN T_SEMI
     ;
 
 
-ReadStmt ::=        T_CIN T_ISTREAM Designator T_SEMI
+ReadStmt ::=        T_CIN T_ISTREAM Designator:_1 T_SEMI
+                    {:
+                        ((MyParser) parser).DoCin(_1);
+                    :}
     ;
 
 
-WriteStmt ::=       T_COUT T_OSTREAM WritePairList T_SEMI
+WriteStmt ::=       T_COUT T_OSTREAM WritePairList:_1 T_SEMI
+                    {:
+                    :}
     ;
 
 
 WritePairList ::=   WritePair
+                    {:
+                    :}
     |               WritePairList T_OSTREAM WritePair
+                    {:
+                    :}
     ;
 
 
-WritePair ::=       Expr
+WritePair ::=       Expr:_1
+                    {:
+                        ((MyParser) parser).PrintCout(_1);
+                    :}
     |               T_ENDL
+                    {:
+                        ((MyParser) parser).CoutEnd();
+                    :}
     ;
 
 
@@ -775,14 +813,14 @@ ExprList ::=        Expr:_1
                     {:
                         _1.addElement(_2);
                         RESULT = _1;
-                        //RESULT.addElement (_2);
                     :}
     ;
 
 
 Expr ::=            Designator:_1 T_ASSIGN Expr:_2
                     {:
-                        RESULT = ((MyParser) parser).DoAssignExpr (_1, _2);
+                          RESULT = ((MyParser) parser).DoAssignExpr (_1, _2);
+
                     :}
     |               Expr0:_1
                     {:
@@ -860,6 +898,7 @@ Expr5 ::=           Expr5:_1 Equality:_3 Expr6:_2
 
 Expr6 ::=           Expr6:_1 Relation:_3 Expr7:_2
                     {:
+                       // ((MyParser) parser).DoIfStmt(_1,_3,_2); // input should be a expr or boolean, should not call here
                         RESULT = ((MyParser) parser).DoBinaryExpr(_1, _2, new OpComparison( _3 , "Comparison"));
                     :}
     |               Expr7:_1
@@ -968,7 +1007,7 @@ Designator ::=      T_STAR Designator:_1
                     :}
     |               UnarySign:_1 Designator:_2
                     {:
-                        if(_1.equals("-") && (_2 instanceof ConstSTO)){
+                        if(_1.equals("-")){
                             RESULT = ((MyParser) parser).DoUnaryValue(_2);
                         } else {
                             RESULT = _2;
@@ -976,7 +1015,7 @@ Designator ::=      T_STAR Designator:_1
                     :}
     |               T_NOT Designator:_1
                     {:
-                        RESULT = ((MyParser) parser).DoUnaryExpr(_1, new OpUnary("!", "OpUnary"));
+                        RESULT = ((MyParser) parser).DoUnaryExpr(_1, new OpUnary("!", "OpUnary"), "not");
                     :}
     |               T_SIZEOF T_LPAREN Designator:_1 T_RPAREN
                     {:
@@ -993,7 +1032,7 @@ Designator ::=      T_STAR Designator:_1
                     :}
     |               IncDecOp:_1 Designator:_2
                     {:
-                        RESULT = ((MyParser) parser).DoUnaryExpr (_2, new OpUnary(_1, "OpUnary"));
+                        RESULT = ((MyParser) parser).DoUnaryExpr (_2, new OpUnary(_1, "OpUnary"), "pre");
                     :}
     |               Designator2:_1 
                     {:
@@ -1018,7 +1057,7 @@ Designator2 ::=     Designator2:_1 T_DOT T_ID:_3
     |               Designator2:_1 IncDecOp:_2
                     {:
                         //RESULT = _1;
-                        RESULT = ((MyParser) parser).DoUnaryExpr (_1, new OpUnary(_2, "OpUnary"));
+                        RESULT = ((MyParser) parser).DoUnaryExpr (_1, new OpUnary(_2, "OpUnary"), "post");
                     :}
     |               Designator2:_1 T_LPAREN OptExprList:_2 T_RPAREN
                     {:

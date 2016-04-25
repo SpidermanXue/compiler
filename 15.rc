@@ -1,0 +1,14 @@
+function : void main (){
+	int x = 1;
+	int m = 2;
+	float y = 1.1;
+	if (m > x){
+		x = 2;
+	}
+	if(x > 1){
+
+	}
+	if(y > 1.1){
+
+	}
+}

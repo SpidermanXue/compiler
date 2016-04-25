@@ -1,0 +1,12 @@
+int x = 1;
+
+function : void main (){
+	int k = 1 + x;
+	int m = k ^ x;
+	k + m;
+	k > 1;
+
+	if(k > 1){
+
+	}
+}

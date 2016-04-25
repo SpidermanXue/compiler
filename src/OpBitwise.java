@@ -43,6 +43,7 @@ public class OpBitwise extends OpBinary {
             return new ConstSTO("int", new TypeInt("int", 4), intResult);
         }
 
-        return new ExprSTO("int", new TypeInt("int", 4));
+        return new ExprSTO (a, b, m_op,  new TypeInt("int", 4), "int");
+
     }
 }

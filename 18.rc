@@ -1,0 +1,12 @@
+function : void main(){
+	int x =2;
+	while(x > 0){
+		x--;
+		break;
+	}
+	x = 3;
+	while(x > 1){
+		x--;
+		continue;
+	}
+}

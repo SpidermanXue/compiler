@@ -7,6 +7,7 @@
 class VarSTO extends STO
 {
 	private boolean amper = false;
+	private boolean array = false;
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -34,4 +35,6 @@ class VarSTO extends STO
 
 	public void setamper(){ this.amper = true; }
 	public boolean getamper(){return amper;}
+	public void SetAsArray(){ this.array = true;}
+	public boolean IfIsArray(){return this.array;}
 }

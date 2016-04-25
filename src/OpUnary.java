@@ -12,21 +12,23 @@ public class OpUnary extends Operator {
         return null;
     }
 
-    public STO checkOperands(STO a)
+    public STO checkOperands(STO a, String position)
     {
         switch (this.getOp())
         {
             case "++":
-                return this.doIncDec(a);
+                return this.doIncDec(a, position);
             case "--":
-                return this.doIncDec(a);
+                return this.doIncDec(a, position);
             case "!":
                 return this.doNot(a);
+            case "-":
+                return this.doNeg(a);
         }
         return new ErrorSTO(a.getName(), "The author of the compiler did something wrong in rc.cup");
     }
 
-    private STO doIncDec(STO a)
+    private STO doIncDec(STO a, String position)
     {
         Type aType = a.getType();
 
@@ -62,6 +64,14 @@ public class OpUnary extends Operator {
                 return new ConstSTO(a.getName(), aType, result2);
             }
         }
+
+        if(a instanceof VarSTO){
+            if(position.equals("pre")) {
+                return new VarSTO(this.getOp() + a.getName(), aType);
+            }else{
+                return new VarSTO(a.getName() + this.getOp() , aType);
+            }
+        }
         //should be an R value
         return new ExprSTO(a.getName(), aType);
     }
@@ -69,7 +79,6 @@ public class OpUnary extends Operator {
     private STO doNot(STO a)
     {
         Type aType = a.getType();
-
         // Type Error Checking
         if (!(aType instanceof TypeBool)) {
             return new ErrorSTO(a.getName(), Formatter.toString(
@@ -84,6 +93,12 @@ public class OpUnary extends Operator {
             return new ConstSTO(a.getName(), new TypeBool("bool", 4), aVal);
         }
 
-        return new ExprSTO(a.getName(), new TypeBool("bool", 4));
+       // return new ExprSTO(a.getName(), new TypeBool("bool", 4));
+        return a;
+    }
+
+    private STO doNeg(STO a){
+        STO sto = new VarSTO("-" + a.getName(), a.getType());
+        return sto;
     }
 }

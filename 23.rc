@@ -1,0 +1,10 @@
+function : void main (){
+
+   while(true){
+    while(true){
+        while(true){
+            break;
+        }
+    }
+   }
+}

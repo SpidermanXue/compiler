@@ -1,0 +1,14 @@
+function : void foo (int x, int y){
+
+}
+function : void foo( float x, bool y){
+
+}
+function : int foo( int & x){
+	int m = 1;
+	return 1;
+}
+
+function : void main (){
+
+}

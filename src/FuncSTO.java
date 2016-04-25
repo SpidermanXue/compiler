@@ -18,6 +18,7 @@ class FuncSTO extends STO
     private boolean structFuncFlag = false;
     private StructdefSTO struct;
 	private int varSize;
+	private boolean IfdeclinAss = false;
     //-------
 	// --------------------------------------------------------
 	//
@@ -107,8 +108,18 @@ class FuncSTO extends STO
 		return this.scopeLevel;
 	}
 
-	public int getVarSize()
-	{
+//	public int getVarSize()
+//	{
+//		return this.varSize;
+//	}
+
+	public void setFuncVarSize(int a) {
+		this.varSize = a;
+	}
+	public int getFuncVarSize(){
 		return this.varSize;
 	}
+
+	public void FuncDecled(boolean x){this.IfdeclinAss = x;}
+	public boolean getifdecl(){return this.IfdeclinAss;}
 }

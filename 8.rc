@@ -1,0 +1,16 @@
+int m = 1;
+function : void main (){
+	int x = 1;
+	int y = 2;
+	int c = x + y;
+	int k = m + y;
+	c++;
+	int a = x & y;
+	int b = x ^ c;
+	int d = a | b;
+	int e = x % y;
+	int h = 1 * x;
+	int i = y / 1;
+
+	return;
+}

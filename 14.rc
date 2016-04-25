@@ -1,0 +1,8 @@
+function : void main (){
+	int x = 1;
+	float y = 1.1;
+	cin >> x;
+	cin >> 2;
+	cin >> y;
+	cin >> 2.2;
+}

@@ -1,0 +1,4 @@
+function : void main(){
+	static int x = 9;
+	cout << x - 3 << x << endl;
+}

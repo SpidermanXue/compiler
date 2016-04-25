@@ -39,6 +39,6 @@ public class OpBoolean extends OpBinary {
             return new ConstSTO("bool", new TypeBool("bool", 4), intResult);
         }
 
-        return new ExprSTO("bool", new TypeBool("bool", 4));
+        return new ExprSTO(a, b, this.getOp(), new TypeBool("bool", 4), "bool");
     }
 }

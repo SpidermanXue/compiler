@@ -1,0 +1,10 @@
+function : void main (){
+	int a[10];
+	foreach(int i : a){
+		break;
+	}
+
+	foreach(int x : a){
+		continue;
+	}
+}

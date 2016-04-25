@@ -42,7 +42,6 @@ class ConstSTO extends STO
 	public ConstSTO(String strName, Type typ, int val)
 	{
 		super(strName, typ);
-		//System.out.println("input value:::" + val);
 		m_value = new BigDecimal(val);
 		//this.setIsAddressable(true);
 		// You may want to change the isModifiable and isAddressable

@@ -1,0 +1,10 @@
+function : void main (){
+	bool a = !false;
+	bool b = !a;
+	bool c = a || b;
+	bool d = b || a;
+	bool e = a && b;
+	bool h = b && a;
+	bool g = b && true;
+
+}

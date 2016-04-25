@@ -21,6 +21,7 @@ class MyParser extends parser
     private int m_nSavedLineNum;
     private SymbolTable m_symtab;
     private AssemblyCodeGenerator MyWriter;
+    private int CurrentOffset;
 
     //----------------------------------------------------------------
     //
@@ -155,6 +156,7 @@ class MyParser extends parser
     {
         m_symtab.openScope();
         MyWriter = new AssemblyCodeGenerator("rc.s");
+        MyWriter.DefineHeader();
     }
 
     //----------------------------------------------------------------
@@ -164,6 +166,7 @@ class MyParser extends parser
     {
         m_symtab.closeScope();
         MyWriter.dispose();
+
     }
 
     //----------------------------------------------------------------
@@ -181,6 +184,7 @@ class MyParser extends parser
         }
         // TypeArray
         if (array != null) {
+         //   int count = 0;
             for (STO index : array) {
                 if (index instanceof ErrorSTO) {
                     errFlag = true;
@@ -226,7 +230,14 @@ class MyParser extends parser
             sto.setGlobal(this.m_symtab.getLevel()==1);
 
             m_symtab.insert(sto);
-            MyWriter.DoDecl(sto,s);
+            FuncSTO func = m_symtab.getFunc();
+            if(func != null) {
+                CurrentOffset = (-1 * func.getFuncVarSize()) - (sto.getType().getSize());
+                sto.setOffset(String.valueOf(CurrentOffset));
+                func.setFuncVarSize(-CurrentOffset);
+            }
+            MyWriter.DoDecl(sto, s);
+
             return;
         } //end of TypeArray part
 
@@ -257,6 +268,14 @@ class MyParser extends parser
 
         sto.setStatic(optStatic);
         sto.setGlobal(this.m_symtab.getLevel()==1);
+        if(sto.getGlobal()){
+            sto.setOffset(sto.getName());
+        }else if(!sto.getStatic()){
+            FuncSTO func = m_symtab.getFunc();
+            CurrentOffset = (-1 * func.getFuncVarSize()) - sto.getType().getSize();
+            sto.setOffset(String.valueOf(CurrentOffset));
+            func.setFuncVarSize(-CurrentOffset);
+        }
         m_symtab.insert(sto);
         MyWriter.DoDecl(sto, s);
 
@@ -370,12 +389,9 @@ class MyParser extends parser
                 if (temp.getBoolValue()) {
                     i = 1;
                 }
-
                 toInsert = new ConstSTO (id, temp.getType(), i);
                 toInsert.setIsAddressable(true);
             }
-
-            m_symtab.insert(toInsert);
             return;
         }
 
@@ -406,8 +422,18 @@ class MyParser extends parser
 
         sto.setStatic(optStatic);
         sto.setGlobal(m_symtab.getLevel()==1);
-        MyWriter.DoDecl(sto,s);
+
+
+        if(sto.getGlobal()){
+            sto.setOffset(sto.getName());
+        }else{
+            FuncSTO func = m_symtab.getFunc();
+            CurrentOffset = (-1 * func.getFuncVarSize()) - sto.getType().getSize();
+            sto.setOffset(String.valueOf(CurrentOffset));
+            func.setFuncVarSize(-CurrentOffset);
+        }
         m_symtab.insert(sto);
+        MyWriter.DoDecl(sto, s);
     }
 
     //----------------------------------------------------------------
@@ -415,6 +441,7 @@ class MyParser extends parser
     //----------------------------------------------------------------
     void DoFuncDecl_1(String id, Type returntype, String reference)
     {
+        CurrentOffset = 0;
         FuncSTO sto = new FuncSTO(id, returntype);
         if (m_symtab.accessGlobal(id) != null)
         {
@@ -442,8 +469,15 @@ class MyParser extends parser
     {
         m_symtab.closeScope();
         m_symtab.setFunc(null);
+        MyWriter.EndOfFunc();
     }
 
+    void DoFuncDeclStr_2()
+    {
+        m_symtab.closeScope();
+        m_symtab.setFunc(null);
+        MyWriter.EndOfFuncStr();
+    }
     //----------------------------------------------------------------
     //
     //----------------------------------------------------------------
@@ -466,7 +500,6 @@ class MyParser extends parser
 
         if(funcGroup.size() > 1) {
             for (STO fun : funcGroup) {
-
                 if (!(fun instanceof FuncSTO)) {
                     m_nNumErrors++;
                     m_errors.print(Formatter.toString(ErrorMsg.redeclared_id, fun.getName()));
@@ -480,7 +513,6 @@ class MyParser extends parser
                         m_errors.print(Formatter.toString(ErrorMsg.error9_Decl, currentFunc.getName()));
                         return;
                     }
-
                     if (params != null ) {
                         oneSize = params.size();
                     }else{
@@ -508,7 +540,6 @@ class MyParser extends parser
                     } else {
                         flag = true;
                     }
-
                     if (!flag) {
                         m_nNumErrors++;
                         m_errors.print(Formatter.toString(ErrorMsg.error9_Decl, currentFunc.getName()));
@@ -517,10 +548,11 @@ class MyParser extends parser
                 }
             }
         }
-
         // when just one or on same one
         currentFunc.setCondidate(false);
         m_symtab.getFunc().setParameter(params); // save to funcST
+        MyWriter.DoFuncDecl(m_symtab.getFunc());
+
     }
 
     //----------------------------------------------------------------
@@ -562,6 +594,9 @@ class MyParser extends parser
                 return new ErrorSTO(to.getName());
             }
         }
+//make a exprSTO check
+        MyWriter.DoBasicLocalDecl(to, from);
+
         return to;
     }
 
@@ -655,10 +690,12 @@ class MyParser extends parser
                 if(flag) {
                     Type returnType = ((FuncSTO) fun).getReturnType();
                     toReturn = new ExprSTO(fun.getName(), returnType);
+                    ((ExprSTO)toReturn).SetFunCall();
                     if(((FuncSTO) fun).getamper()){
                         toReturn.setIsAddressable(true);
                         toReturn.setIsModifiable(true);
                     }
+                    MyWriter.DoFuncCall(toReturn, sto, args);
                     return toReturn;
                     //break; //found, jump out for loop
                 }
@@ -767,11 +804,14 @@ class MyParser extends parser
         Type returnType = ((FuncSTO) sto).getReturnType();
 
         STO toReturn = new ExprSTO(sto.getName(), returnType);
+        ((ExprSTO)toReturn).SetFunCall();
 
         if(((FuncSTO) sto).getamper()){
             toReturn.setIsAddressable(true);
             toReturn.setIsModifiable(true);
         }
+
+        MyWriter.DoFuncCall(toReturn, sto, args);
         return toReturn;
     }
 
@@ -804,11 +844,14 @@ class MyParser extends parser
         for(STO a : structVar){
             if(strID.equals(a.getName())){
                 found = true;
-                //Sabryna
                 if (a instanceof FuncSTO) {
                     ((FuncSTO) a).setIsStructFunc(true);
                     ((FuncSTO) a).setStruct(struct);
+                    MyWriter.CallStructFunc(a, sto);
                     return a;
+                }
+                if(flagThis){
+                    a.SetThis();
                 }
                 return a;
             }
@@ -844,7 +887,6 @@ class MyParser extends parser
                     ErrorMsg.error11t_ArrExp, sto.getType().getName()));
             return new ErrorSTO(sto.getName());
         }
-
         // Check if index is int
         if (!(number.getType() instanceof TypeInt)) {
             m_nNumErrors++;
@@ -863,7 +905,7 @@ class MyParser extends parser
             }
 
             STO toReturn = new VarSTO(sto.getName(),
-                                      ((TypePointer) sto.getType()).getPointerType());
+                    ((TypePointer) sto.getType()).getPointerType());
             toReturn.setIsAddressable(true);
             toReturn.setIsModifiable(true);
             return toReturn;
@@ -881,8 +923,20 @@ class MyParser extends parser
                 return new ErrorSTO(sto.getName());
             }
         }
+        STO returntmp = ((TypeArray)sto.getType()).getElement();
+        STO returnSto = new VarSTO(returntmp.getName(), returntmp.getType());
+        returnSto.setIsAddressable(true);
+        returnSto.setIsModifiable(true);
+        if(number instanceof ConstSTO) {
+            MyWriter.DoArray(sto, ((ConstSTO) number).getIntValue(), returnSto);
+        }else if (number instanceof VarSTO){
+         //   MyWriter.DoArray(sto, number, returnSto);
+        }
+        if(returnSto instanceof VarSTO){
+            ((VarSTO) returnSto).setamper();
+        }
 
-        return ((TypeArray)sto.getType()).getElement();
+        return returnSto;
     }
 
     //----------------------------------------------------------------
@@ -891,17 +945,15 @@ class MyParser extends parser
     STO DoDesignator3_ID(String strID)
     {
         STO sto;
-
-        if ((sto = m_symtab.accessLocal(strID)) == null) {
-            if((sto = m_symtab.accessGlobal(strID)) == null) {
+      //  if ((sto = m_symtab.accessLocal(strID)) == null) {
+        //    if((sto = m_symtab.accessGlobal(strID)) == null) {
                 if((sto = m_symtab.access(strID)) == null) {
                     m_nNumErrors++;
                     m_errors.print(Formatter.toString(ErrorMsg.undeclared_id, strID));
                     sto = new ErrorSTO(strID);
                 }
-            }
-        }
-
+          //  }
+       // }
         return sto;
     }
 
@@ -952,29 +1004,51 @@ class MyParser extends parser
         }
 
         STO result = o.checkOperands(a, b);
-
         if(result.isError()){
             m_nNumErrors++;
             m_errors.print(((ErrorSTO)result).getErrMsg());
+        }
+        if(result instanceof ExprSTO) { //deal with h + x (normal int not const int)
+            if(((ExprSTO) result).getOperator().equals("||") || ((ExprSTO) result).getOperator().equals("&&") ){
+                MyWriter.DoOrAnd(result);
+            }else{
+                MyWriter.DoCalculation(result);
+            }
         }
 
         return result;
     }
 
+
     // Check 2
     //Sabryna
-    STO DoUnaryExpr(STO a, Operator o)
+    STO DoUnaryExpr(STO a, Operator o, String position)
     {
         if (a instanceof ErrorSTO) {
             return a;
         }
 
-        STO result = ((OpUnary)o).checkOperands(a);
+        STO result = ((OpUnary)o).checkOperands(a, position);
 
         if (result instanceof ErrorSTO) {
             m_nNumErrors++;
             m_errors.print(((ErrorSTO)result).getErrMsg());
             return result;
+        }
+
+        FuncSTO func = m_symtab.getFunc();
+        CurrentOffset = (-1 * func.getFuncVarSize()) - 4;
+        result.setOffset(String.valueOf(CurrentOffset));
+        func.setFuncVarSize(-CurrentOffset);
+
+        if(result instanceof VarSTO){
+            if(position.equals("post")) {
+                MyWriter.DoIncDecOpPost(a, result, o.getOp());
+            }else if (position.equals("pre")){
+                MyWriter.DoIncDecOpPre(a, result, o.getOp());
+            }else{
+                MyWriter.DoNot(a, o.getOp());
+            }
         }
         return result;
     }
@@ -987,8 +1061,14 @@ class MyParser extends parser
             ((ConstSTO)toReturn).unaryValue();
             return toReturn;
         }
-
-        return a;
+        Operator o = new OpUnary("-", "OpUnary");
+        STO result = ((OpUnary)o).checkOperands(a, "-");
+        FuncSTO func = m_symtab.getFunc();
+        CurrentOffset = (-1 * func.getFuncVarSize()) - 4;
+        result.setOffset(String.valueOf(CurrentOffset));
+        func.setFuncVarSize(-CurrentOffset);
+        MyWriter.DoUnary(a, result);
+        return result;
     }
 
     // Check 4
@@ -997,7 +1077,9 @@ class MyParser extends parser
             return;
         }
 
-        if(!(a.getType() instanceof TypeBool)){
+        if(a instanceof ExprSTO) return;
+
+        if(!(a.getType() instanceof TypeBool) ){
             m_nNumErrors++;
             m_errors.print(Formatter.toString(ErrorMsg.error4_Test, a.getType().getName()));
         }
@@ -1046,6 +1128,9 @@ class MyParser extends parser
         }else {
             sto.setreturnflag(false);
         }
+
+        MyWriter.DoReturn(o);
+
     }
 
     /*check 5*/
@@ -1140,6 +1225,7 @@ class MyParser extends parser
             m_nNumErrors++;
             m_errors.print(Formatter.toString(ErrorMsg.error7_Exit, a.getType().getName()));
         }
+        MyWriter.CallExit(a);
     }
 
     /*check 12a*/
@@ -1178,6 +1264,8 @@ class MyParser extends parser
         }
         DoVarDecl(false, id, t, null, null);
         this.m_symtab.setForEach();
+        MyWriter.DoForEach(s);
+
     }
 
     /* Check 12b*/
@@ -1187,6 +1275,7 @@ class MyParser extends parser
             m_nNumErrors++;
             m_errors.print(ErrorMsg.error12_Break);
         }
+        MyWriter.DoBreak();
     }
     void doContinue()
     {
@@ -1194,6 +1283,7 @@ class MyParser extends parser
             m_nNumErrors++;
             m_errors.print(ErrorMsg.error12_Continue);
         }
+        MyWriter.DoContinue();
     }
 
     /*check 13*/
@@ -1208,6 +1298,7 @@ class MyParser extends parser
         StructdefSTO sto = new StructdefSTO(id, t);
         m_symtab.insertGlobal(sto);
         m_symtab.setStruct(sto); // save current setStruct
+        MyWriter.MakeStruct(id);
     }
 
     // check13a : Struct declaration, duplication identifiers
@@ -1405,6 +1496,7 @@ class MyParser extends parser
         }
         currentFunc.setCondidate(false);
         m_symtab.getFunc().setParameter(params);
+        MyWriter.DoFuncDeclStr(m_symtab.getFunc());
 
     }
 
@@ -1931,12 +2023,68 @@ class MyParser extends parser
                 return;
             }
         }
+        MyWriter.MakeStructInstant(t, s);
     }
 
+    void DoLHS(STO a ){ MyWriter.DoLHS(a);}
+
+    void DoRHS(STO a, STO b, Operator o){
+        STO result = o.checkOperands(a, b);
+        if(result instanceof ExprSTO) {
+            MyWriter.DoRHS(result);
+        }
+    }
+
+    void DoIfStmt(STO expr){
+        MyWriter.DoIfStmt(expr);
+    }
+    void DoBa(){MyWriter.DoBa();}
+    void DoElseStmt(){ MyWriter.DoElse();}
+    void DoWhileStmt(){ MyWriter.DoWhileStmt();}
+    void CheckWhileCondition(STO expr){ MyWriter.CheckWhileCondition(expr);}
+    void CheckForEachCondition(STO a){MyWriter.CheckForEachCondition(a);}
+    void EndOfWhile(){ MyWriter.EndOfWhile();}
 
     STO MakeThisExpr(){
         StructdefSTO struct = m_symtab.getStruct();
         return new ExprSTO("this", new TypeStruct(struct.getName(), struct.getType().getSize()));
     }
 
+    void DoCin(STO in){
+        MyWriter.DoCin(in);
+    }
+    void PrintCout(STO in){
+        if(in.getType() == null) {
+           MyWriter.PrintCout(in);
+        }else if(in instanceof ConstSTO){
+            MyWriter.DoFolding(in); //trade const as real const
+        }else if(in instanceof VarSTO){
+            MyWriter.PrintCout(in);
+        }
+        else if(in instanceof  ExprSTO){
+            if(((ExprSTO)in).IfFunCall()) {//for func
+                FuncSTO func = m_symtab.getFunc();
+                CurrentOffset = (-1 * func.getFuncVarSize()) - 4;
+                in.setOffset(String.valueOf(CurrentOffset));
+                func.setFuncVarSize(-CurrentOffset);
+                MyWriter.PrintCout(in);
+            }else{
+                MyWriter.PrintCout(in);
+            }
+        }
+//        if(in.getType() == null) {
+//            MyWriter.PrintCout(in);
+//        }else if(in instanceof ConstSTO && (in.getName().equals(String.valueOf(((ConstSTO) in).getFloatValue())) || in.getName().equals(String.valueOf(((ConstSTO) in).getIntValue())))){
+//            MyWriter.DoFolding(in);
+//        }else {
+//            MyWriter.PrintCout(in);
+//        }
+    }
+    void CoutEnd(){
+        MyWriter.CoutEnd();
+    }
+
+    void ResetUpdateFlag(STO a){
+        a.setUpdateFlag(false);
+    }
 }

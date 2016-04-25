@@ -1,0 +1,22 @@
+int a = 1;
+int b = 2;
+int h = a + b;
+const int d = 1;
+int c = a + d;
+
+const int e = 3;
+static int ppp = 1;
+int uiui = d + e;
+
+function : void main (int x){
+	const int ooo = 1;
+	int h = d + e;
+	int xx = ++h;
+	int kk = d + h--;
+	int ppp = d - h;
+	int tt = d * h;
+		int jjj = tt / h;
+		int kkk = tt % h;
+		int xxx = tt ^ h;
+	return;
+}

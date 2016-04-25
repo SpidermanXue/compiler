@@ -7,7 +7,7 @@
 import 	java.util.*;
 import	java.io.*;
 
-class Lexer
+class  Lexer
 {
 	//----------------------------------------------------------------
 	//

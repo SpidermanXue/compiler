@@ -1,0 +1,11 @@
+function : void main (){
+	const float l = 1.3;
+	float a = 1.1;
+	a--;
+	a++;
+	float b = 1.2 + a++;
+	float d = 1.1 + b;
+	float c = a / l;
+	float x = a * l;
+	float h = l;
+}

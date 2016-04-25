@@ -14,7 +14,9 @@ abstract class STO
 	protected boolean isGlobal;
     protected boolean isStatic;
     protected String offset;
-
+	protected String newUpdate;
+	protected boolean UpdateFlag = false ;
+	private boolean thisflag = false;
 	//----------------------------------------------------------------
 	//
 	//----------------------------------------------------------------
@@ -155,13 +157,31 @@ abstract class STO
         return this.isGlobal;
     }
 
-    public void setOffset(int offset)
+    public void setOffset(String offset)
     {
-        this.offset = String.valueOf(offset);
+        this.offset = offset;
     }
     public String getOffset()
     {
         return this.offset;
     }
 
+	public void setUpdateOffset(String offset){
+		this.newUpdate = offset;
+	}
+
+	public String getUpdatedOffset(){
+		return this.newUpdate;
+	}
+
+	public void setUpdateFlag(boolean a){
+		this.UpdateFlag = a;
+	}
+
+	public boolean GetUpdateFlag(){
+		return this.UpdateFlag;
+	}
+
+	public void SetThis(){ this.thisflag = true;}
+	public boolean ifthis(){return this.thisflag;}
 }

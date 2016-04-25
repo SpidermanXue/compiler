@@ -1,0 +1,10 @@
+function : void main (){
+	float x = 1.1;
+	float y = 0.9;
+	if( (x + 1.2) > ( x + 1.1)){
+
+	}
+	if( (x + 1.2) > ( y + 1.1)){
+
+	}
+}

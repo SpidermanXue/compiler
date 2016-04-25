@@ -38,7 +38,9 @@ public class OpComparison extends OpBinary {
             return result;
         } else {
             // no need const folding and no error
-            return new ExprSTO("bool", new TypeBool("bool", 4));
+        //    return new ExprSTO("bool", new TypeBool("bool", 4));
+            return new ExprSTO (a, b, m_op,  new TypeBool("bool", 4), "bool");
+
         }
     }
 

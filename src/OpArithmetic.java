@@ -1,4 +1,5 @@
 import java.math.BigDecimal;
+import java.util.Vector;
 
 /**
  * Created by Sabryna on 10/8/15.
@@ -13,6 +14,7 @@ public class OpArithmetic extends OpBinary {
     {
         Type one = a.getType();
         Type two = b.getType();
+        Vector<String> Operation = new Vector<String>();
 
         // Type Error Checking
         if (this.m_op.equals("%")) {
@@ -68,7 +70,6 @@ public class OpArithmetic extends OpBinary {
                     if (two instanceof TypeInt) {
                         result1 = aIntVal/bIntVal;
                     }
-
                     result2 = aFloatVal / bFloatVal;
                     break;
                 case "%":
@@ -78,6 +79,8 @@ public class OpArithmetic extends OpBinary {
 
                     result1 = aIntVal % bIntVal;
                     break;
+                case ">":
+                    break;
             }
 
             if(one instanceof TypeInt && two instanceof TypeInt){
@@ -86,11 +89,12 @@ public class OpArithmetic extends OpBinary {
             return new ConstSTO ("float", new TypeFloat("float", 32), result2);
         }
 
-        //Implement operands checking logic here
         if (one instanceof TypeInt && two instanceof TypeInt) {
-            return new ExprSTO ("int",  new TypeInt("int", 32));
+
+            return new ExprSTO (a, b, m_op,  new TypeInt("int", 32), "int");
         } else {
-            return new ExprSTO ("float", new TypeFloat("float", 32));
+
+            return new ExprSTO (a, b, m_op,  new TypeFloat("float", 32), "float");
         }
     }
 }
